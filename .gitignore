@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+runtime/
+.data/
+*.log
+.DS_Store
+node_modules/
+__pycache__/
+plugin/target/
+.tooling/
+*.jar
+*.zip
+*.tar.gz

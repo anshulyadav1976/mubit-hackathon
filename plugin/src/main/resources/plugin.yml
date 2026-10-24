@@ -1,0 +1,14 @@
+name: Everafter
+version: 1.0.0
+main: ai.everafter.EverafterPlugin
+api-version: '1.21.11'
+description: An authored Minecraft adventure whose next chapter listens to you.
+author: Everafter
+commands:
+  everafter:
+    description: Start, explore, return home, or inspect your story.
+    aliases: [ea]
+    usage: /everafter [start|go|home|status|help|reset]
+  talk:
+    description: Speak to the selected character. Right-click a character to select them.
+    usage: /talk <message>
