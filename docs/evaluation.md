@@ -9,6 +9,8 @@ node --test director/test/*.test.mjs
 node director/evaluate.mjs
 ```
 
+The latest completed automated validation recorded **21 passing Node tests, 9 passing Java tests and 12 passing Python tests**. These checks are separate from the native Minecraft UI observations below.
+
 The default evaluator deliberately supplies an empty API key even if your environment has a key. It makes zero gateway requests and writes an `offline-fallback-validation` report under ignored `director/runtime/evaluations/`. It tests local fallback behavior, schema bounds, quest objectives, route locks and correction handling. Offline scores say nothing about Mubit training or model quality. Failed expectations are reported as failures rather than removed.
 
 ## Recorded offline measurements
@@ -36,6 +38,22 @@ After the session compatibility fix, the authorized `director/runtime/evaluation
 The first and last middleware IDs were `mreq_01a16e417f687103ab44ba02d5f82205` and `mreq_01a16e4239b07773b89ff06291f47dc2`. This is the provider baseline, not an adapter result. Constraint/route-lock/objective scores include backend guards, while explicit preference decisions came from validated model responses. The preference cases already score perfectly, so they provide no headroom to claim a later F1 increase. Mubit kept-example counts, eligibility, training progress and adapter serving still require separate console evidence. Preserve this report and pass its actual path to `--compare` for any later matching live run.
 
 The operator then observed the actual Mubit console task `ln_f033afe97baac3c175b28c3f`, task key `lk1_09b1679beae4f3a37e3e1216a20baf0f`. Before the separate synthetic batch, its console showed **21 waiting review, 0 kept, 0 rejected, no training and no routes**. This agrees with one successful compatibility confirmation plus 20 baseline requests, but also demonstrates why successful HTTP calls must not be described as retained training examples or an adapter. These counts are an operator-observed console snapshot at that point, not an automatic check by the evaluation runner.
+
+In a later operator-observed console snapshot on 2026-10-24, after the 40-request synthetic batch and live gameplay, the task showed **64 calls, 62 usable, 0 kept, 0 rejected and 62 waiting review**. Its review counters showed **62 queued, 0 over limit and 5 running**; the first adapter training had **not started**. These are the console's observed counters, including its separate queue/running labels, not counts inferred from successful client requests. Review work was now visible, but no trained adapter, passing version, adapter-served request or improvement had been established at this snapshot.
+
+At **16:02 BST on 2026-10-24**, the console still showed **0 kept, 0 rejected and first training not started**. It reported 63 usable calls, 64 waiting review, 63 queued, 0 over the daily limit and 6 running. The header displayed 65 calls while seven-day traffic displayed 70; these inconsistent aggregates are preserved as displayed, not reconciled into a claimed total. The routing explanation said no version was on a silent test, partial rollout or live.
+
+The subsequent console check displayed **“The engine is not answering” / “Engine unreachable”**, including after one retry. This is evidence about the console's engine connection, not proof that the inference gateway was also unavailable. No further synthetic calls were made to try to clear the queue.
+
+### Provider follow-up
+
+Open the [EVERAFTER task](https://app.mubit.ai/console/projects/ws-4f30c2c7f67f9351/workloads/ln_f033afe97baac3c175b28c3f) and ask the Mubit team to inspect reviewer scheduling and engine availability for task `ln_f033afe97baac3c175b28c3f`. Training requires 25 kept examples, but none had been kept or rejected despite review work showing as queued/running. Successful baseline and synthetic requests, with their middleware IDs, are recorded above. No cause has been established, no quality gates were weakened, and no support message was sent automatically. Adapter evidence and a matching post-training evaluation remain outstanding.
+
+## Native Minecraft gameplay check
+
+A separate native Minecraft UI playthrough completed the **mystery route**: all three rune markers were right-clicked, Elin was right-clicked to rescue her, and `/ea home` returned to the village and triggered the celebration with Mara and Elin. This checks the actual mystery quest transitions and visible village consequence beyond the director's synthetic HTTP cases. This single mystery playthrough is not a broad gameplay, accessibility or generated-world-quality benchmark.
+
+A partial **combat-route** native UI check used a live Mubit decision to generate a watchtower chapter with five guards. Player damage, death and automatic respawn with preserved gear were observed. Attack testing through the UI controls was inconclusive, so clearing the guards and completing the combat rescue were **not verified**. The standard left mouse button attack binding was restored after the temporary input test. A fresh server and client were running at the end of the check.
 
 ## Explicit live evaluation
 
@@ -89,4 +107,4 @@ The evidence text is an operator-provided reference, not automatic verification.
 | Latency | Measured end-to-end director median and p95; not a provider-only or training-speed claim |
 | Token usage | Gateway-reported counts; unknown counts remain null in request records |
 
-Constraint, committed-route and objective scores include deterministic backend guards. They do not demonstrate that the raw model output followed every rule. Dialogue factuality and NPC consistency still need human review, and the evaluator does not play Minecraft, exercise a microphone or inspect generated geometry. Runtime reports are ignored by Git and contain synthetic dialogue, not credentials.
+Constraint, committed-route and objective scores include deterministic backend guards. They do not demonstrate that the raw model output followed every rule. Dialogue factuality and NPC consistency still need human review. The evaluator itself does not play Minecraft, exercise a microphone or inspect generated geometry. Separate checks recorded the completed mystery UI playthrough, combat generation and death/respawn behavior, and a single-sentence voice smoke check; a completed combat rescue remains unverified. Runtime reports are ignored by Git and contain synthetic dialogue, not credentials.

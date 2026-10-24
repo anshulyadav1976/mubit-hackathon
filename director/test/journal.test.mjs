@@ -7,7 +7,7 @@ const script = await readFile(new URL('../public/app.js', import.meta.url), 'utf
 function journal(overrides = {}) {
   const elements = new Map();
   function element() {
-    return { children: [], listeners: {}, style: {}, scrollHeight: 0, scrollTop: 0, clientHeight: 0,
+    return { children: [], listeners: {}, style: {}, textContent: '', scrollHeight: 0, scrollTop: 0, clientHeight: 0,
       classList: { toggle() {}, add() {}, remove() {} }, setAttribute() {}, focus() {},
       addEventListener(name, callback) { this.listeners[name] = callback; },
       append(...children) { this.children.push(...children); }, replaceChildren(...children) { this.children = children; } };
@@ -47,4 +47,26 @@ for (const failure of ['context', 'source']) test(`microphone tracks close after
   assert.equal(elements.get('#mic').disabled, false);
   assert.equal(vm.runInContext('recording', context), null);
   assert.match(elements.get('#input-status').textContent, /Microphone unavailable/);
+});
+
+test('completed assistant reply clears the queued delivery status', () => {
+  const { context, elements } = journal();
+  context.render({ conversation: [], pendingInputs: 1 });
+  assert.equal(elements.get('#input-status').textContent, 'Your reply is on its way…');
+  const complete = { conversation: [{ role: 'assistant', npc: 'Mara', text: 'I hear you.', at: 'reply' }], pendingInputs: 0 };
+  context.render(complete);
+  assert.equal(elements.get('#input-status').textContent, 'Reply received.');
+  context.render(complete);
+  assert.equal(elements.get('#input-status').textContent, 'Reply received.');
+});
+
+test('polling replies and queued inputs preserve recording and transcription status', () => {
+  const { context, elements } = journal();
+  vm.runInContext("recording={};status('Listening… click Stop when finished.')", context);
+  context.render({ conversation: [{ role: 'assistant', npc: 'Mara', text: 'First reply', at: 'one' }], pendingInputs: 1 });
+  assert.equal(elements.get('#input-status').textContent, 'Listening… click Stop when finished.');
+  vm.runInContext("recording=null;status('Transcribing on this Mac…')", context);
+  elements.get('#mic').disabled = true;
+  context.render({ conversation: [{ role: 'assistant', npc: 'Mara', text: 'Another reply', at: 'two' }], pendingInputs: 1 });
+  assert.equal(elements.get('#input-status').textContent, 'Transcribing on this Mac…');
 });
