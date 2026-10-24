@@ -1,5 +1,7 @@
 # Story-v2 examples saved for later
 
+> Historical preparation record: the manifest and counts below describe the saved corpus before submission was authorized. The user subsequently authorized [separate story-v2 CLI submissions on 25 October](story-v2-submission.md). Frozen artifacts are preserved; their `submitted: 0` field is not a current account-wide submission counter.
+
 These files are **prepared and locally validated only**. They contain authored synthetic requests, hypothetical game snapshots and golden field targets. They contain no provider completions, real player traces, model-quality measurements or Mubit acceptance evidence.
 
 | State | Value |

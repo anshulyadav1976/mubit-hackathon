@@ -2,6 +2,8 @@
 
 # Reproducible evaluation and training evidence
 
+**25 October update:** [Story-v2 submission evidence](story-v2-submission.md) records the separately authorized live candidate batch and its response-limit recovery. The preparation-only counts in the historical contract-boundary note above predate that run. HTTP responses and local checks do not establish Mubit-kept examples, training, passing or adapter serving.
+
 The evaluator contains 20 authored synthetic cases: 12 explicit preference/correction cases and eight committed-route or quest-phase cases. They are separate from the 40 synthetic training utterances. Each evaluation case uses a distinct Mubit session; correction cases seed a labelled synthetic prior preference and conversation without making extra requests. These are test fixtures, not real player observations.
 
 ## Offline checks
