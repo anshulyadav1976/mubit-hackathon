@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EVALUATION_CASES } from '../fixtures/evaluation.mjs';
-import { evaluationOptions, scoreCase, summarize, compareReports } from '../evaluate.mjs';
+import { evaluationOptions, scoreCase, summarize, compareReports, runEvaluation } from '../evaluate.mjs';
 
 test('evaluation defaults to offline and bounds explicit live requests to twenty', () => {
   assert.equal(EVALUATION_CASES.length, 20);
@@ -33,4 +33,9 @@ test('comparisons reject offline, partial or mismatched runs and report signed o
   assert.ok(compareReports(baseline, current).preferenceF1Delta < 0);
   assert.equal(compareReports(baseline, current).medianLatencyMsDelta, 1000);
   for (const change of [{ mode: 'offline-fallback-validation' }, { complete: false }, { fingerprint: 'different' }]) assert.throws(() => compareReports({ ...baseline, ...change }, current));
+});
+
+
+test('legacy live evaluation refuses story v2 before any provider request',async()=>{
+  await assert.rejects(()=>runEvaluation(['--live','--count','1']),/Legacy live evaluation is incompatible with story v2/);
 });

@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Director, fallback, validateInput, validateDecision } from './director.mjs';
-import { SYSTEM_PROMPT, RESPONSE_FORMAT } from './prompt.mjs';
+import { SYSTEM_PROMPT, RESPONSE_FORMAT, STORY_CONTRACT_VERSION } from './prompt.mjs';
 import { RECOVERY_SCENARIOS } from './fixtures/recovery.mjs';
 import { RecoveryBudget, atomicJson } from './recovery-budget.mjs';
 
@@ -37,6 +37,7 @@ export async function runRecovery(args = process.argv.slice(2)) {
   const coverage = validateRecoveryDataset();
   const live = args.includes('--live');
   if (!live) { console.log(JSON.stringify({ mode: 'offline-coverage-only', paidCalls: 0, coverage }, null, 2)); return { coverage, paidCalls: 0 }; }
+  if (STORY_CONTRACT_VERSION !== 1) throw new Error('Legacy recovery training is incompatible with story v2. Preserve the old task and reports; author and authorize a separate v2 dataset first. No requests made.');
   if (!process.env.MUBIT_API_KEY) throw new Error('MUBIT_API_KEY is required; no requests made');
   const count = flag(args, '--count') == null ? 96 : Number(flag(args, '--count'));
   if (!Number.isInteger(count) || count < 1 || count > 96) throw new Error('--count must be an integer from1 to96');
@@ -62,7 +63,7 @@ export async function runRecovery(args = process.argv.slice(2)) {
     for (const scenario of picked) {
       let rawCapture = null;
       let activeCase;
-      const director = new Director({ runtimeDir: null, maxCalls: 4, fetchImpl: async (url, options) => {
+      const director = new Director({ runtimeDir: null, openRouterApiKey: '', maxCalls: 4, fetchImpl: async (url, options) => {
         const attempt = await budget.reserve(runId, activeCase.id);
         try {
           const response = await fetch(url, options);

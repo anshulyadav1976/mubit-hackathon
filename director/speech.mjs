@@ -6,7 +6,14 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const run = promisify(execFile);
-const VOICES = { Mara: { cloud: 'Kore', local: 'Samantha', style: 'A warm, grounded village blacksmith, concerned for her sister. Natural British English, conversational.' }, Oren: { cloud: 'Puck', local: 'Daniel', style: 'An older village archivist, thoughtful and quietly mysterious. Natural British English, conversational.' }, Elin: { cloud: 'Leda', local: 'Karen', style: 'A young adult adventurer, hopeful and relieved. Natural British English, conversational.' } };
+const VOICES = {
+  Mara: { cloud: 'Kore', local: 'Samantha', style: 'Warm, protective adult woman; a grounded village blacksmith. Natural conversational British English. Let concern for her missing sister sound vulnerable; let a homecoming carry heartfelt relief and joy. Vary pacing and emphasis with the meaning. Act the line sincerely, never as a robotic announcer.' },
+  Oren: { cloud: 'Charon', local: 'Daniel', style: 'An older male archivist, thoughtful, intimate and quietly mysterious. Natural British English. Speak clues with hushed curiosity and small meaningful pauses; let discoveries carry restrained wonder. Lived-in character dialogue, never a flat lecture.' },
+  Elin: { cloud: 'Leda', local: 'Karen', style: 'A brave young adult woman. Natural conversational English. Sound tense but determined while trapped, then breathlessly relieved and warmly grateful when freed or reunited. Let the words determine the emotion, with human variation in rhythm and emphasis.' },
+  Ivo: { cloud: 'Fenrir', local: 'Daniel', style: 'A young, quick-witted male adventure guide. Natural conversational English. Alert and energetic; lower your voice for secrets, become urgent around danger, and encourage the traveler with warmth. Express the emotion of the line without sounding theatrical or robotic.' },
+  Sentinel: { cloud: 'Orus', local: 'Daniel', style: 'A stern, resonant male oath-bound guardian. Measured, authoritative and intimidating; controlled anger in a challenge, reluctant respect when shown real proof, and calm dignity when granting mercy. Natural dramatic dialogue with deliberate pauses, never monotone.' },
+  Warden: { cloud: 'Algenib', local: 'Rishi', style: 'An ancient male guardian with a low gravelly, ominous voice. Speak with immense restrained power and weary conviction. Menace during battle; softened gravity and release when an oath ends. Vary emphasis and pace naturally. Do not shout every line or use a robotic narrator cadence.' }
+};
 const MAX_AUDIO = 24000 * 2 * 40;
 const bad = (message, status = 400) => Object.assign(new Error(message), { status });
 
@@ -42,8 +49,8 @@ export async function localSpeech({ text, npc }) {
 }
 
 export class SpeechService {
-  constructor({ apiKey = process.env.OPENROUTER_API_KEY ?? '', model = process.env.OPENROUTER_TTS_MODEL ?? 'google/gemini-3.8-flash-lite-tts', maxCalls = 100, runtimeDir = null, fetchImpl = fetch, localImpl = localSpeech } = {}) {
-    this.apiKey = apiKey; this.model = model; this.maxCalls = maxCalls; this.runtimeDir = runtimeDir; this.fetch = fetchImpl; this.local = localImpl;
+  constructor({ apiKey = process.env.OPENROUTER_API_KEY ?? '', model = process.env.OPENROUTER_TTS_MODEL ?? 'google/gemini-3.8-flash-tts', preferLocal = process.env.EVERAFTER_TTS_PROVIDER === 'macos', maxCalls = 100, runtimeDir = null, fetchImpl = fetch, localImpl = localSpeech } = {}) {
+    this.preferLocal = preferLocal; this.apiKey = apiKey; this.model = model; this.maxCalls = maxCalls; this.runtimeDir = runtimeDir; this.fetch = fetchImpl; this.local = localImpl;
     this.used = 0; this.active = false; this.cloudDisabled = false; this.cache = new Map();
   }
   async init() {
@@ -70,7 +77,7 @@ export class SpeechService {
     this.active = true;
     try {
       let result;
-      if (this.apiKey && !this.cloudDisabled && this.used < this.maxCalls) {
+      if (!this.preferLocal && this.apiKey && !this.cloudDisabled && this.used < this.maxCalls) {
         try {
           await this.reserve();
           const response = await this.fetch('https://openrouter.ai/api/v1/audio/speech', { method: 'POST', headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: this.model, input: input.text, voice: VOICES[input.npc].cloud, instructions: VOICES[input.npc].style, response_format: 'pcm' }), signal: AbortSignal.timeout(20000) });

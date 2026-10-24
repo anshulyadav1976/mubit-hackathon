@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Director, validateDecision } from './director.mjs';
-import { SYSTEM_PROMPT, RESPONSE_FORMAT } from './prompt.mjs';
+import { SYSTEM_PROMPT, RESPONSE_FORMAT, STORY_CONTRACT_VERSION } from './prompt.mjs';
 import { EVALUATION_CASES } from './fixtures/evaluation.mjs';
 
 const option = (args, name, fallback) => args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
@@ -47,6 +47,7 @@ export function summarize(rows) {
     preferenceMicro: { ...counts, precision: counts.tp + counts.fp ? counts.tp / (counts.tp + counts.fp) : null, recall: counts.tp + counts.fn ? counts.tp / (counts.tp + counts.fn) : null, f1: 2 * counts.tp + counts.fp + counts.fn ? 2 * counts.tp / (2 * counts.tp + counts.fp + counts.fn) : null },
     latencyMs: { median: times.length ? (times[Math.floor((times.length - 1) / 2)] + times[Math.floor(times.length / 2)]) / 2 : null, p95: times.length ? times[Math.min(times.length - 1, Math.ceil(times.length * .95) - 1)] : null },
     mubitResponses: rows.filter(row => row.result.source === 'mubit').length,
+    openrouterResponses: rows.filter(row => row.result.source === 'openrouter').length,
     fallbackResponses: rows.filter(row => row.result.source === 'fallback').length
   };
 }
@@ -58,9 +59,10 @@ export function compareReports(baseline, current) {
 
 export async function runEvaluation(args = process.argv.slice(2)) {
   const options = evaluationOptions(args);
+  if (options.live && STORY_CONTRACT_VERSION !== 1) throw new Error('Legacy live evaluation is incompatible with story v2. Author and authorize a separate v2 evaluation first. No requests made.');
   if (options.live && !process.env.MUBIT_API_KEY) throw new Error('MUBIT_API_KEY is required for --live; no requests made');
   const runId = randomUUID();
-  const director = new Director({ apiKey: options.live ? process.env.MUBIT_API_KEY : '', runtimeDir: null, maxCalls: options.live ? options.count : 0 });
+  const director = new Director({ apiKey: options.live ? process.env.MUBIT_API_KEY : '', openRouterApiKey: '', runtimeDir: null, maxCalls: options.live ? options.count : 0 });
   const cases = EVALUATION_CASES.slice(0, options.count);
   const fingerprint = createHash('sha256').update(JSON.stringify({ model: director.model, system: SYSTEM_PROMPT, responseFormat: RESPONSE_FORMAT, cases })).digest('hex');
   const localPromptFingerprint = createHash('sha256').update(JSON.stringify({ model: director.model, system: SYSTEM_PROMPT, responseFormat: RESPONSE_FORMAT })).digest('hex');

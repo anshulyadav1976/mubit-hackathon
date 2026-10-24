@@ -70,3 +70,16 @@ test('polling replies and queued inputs preserve recording and transcription sta
   context.render({ conversation: [{ role: 'assistant', npc: 'Mara', text: 'Another reply', at: 'two' }], pendingInputs: 1 });
   assert.equal(elements.get('#input-status').textContent, 'Transcribing on this Mac…');
 });
+
+test('journal labels gateway, hosted fallback and local rules with their actual model/source',()=>{
+  const {context,elements}=journal();
+  for(const [source,model,label,shownModel] of [
+    ['mubit','gpt-6-luna','Mubit gateway','gpt-6-luna'],
+    ['openrouter','google/gemini-2.5-flash-lite','OpenRouter fallback','google/gemini-2.5-flash-lite'],
+    ['fallback','gpt-6-luna','Local fallback','Local story rules']
+  ]) {
+    context.render({model:'configured-mubit-model',lastDecision:{source,model,mood:'wonder',difficulty:2,latencyMs:10},conversation:[{role:'assistant',npc:'Mara',source,text:'A reply.',at:source}]});
+    assert.equal(elements.get('#source').textContent,label); assert.equal(elements.get('#model').textContent,shownModel);
+    if(source==='openrouter') assert.equal(elements.get('#messages').children[0].children.at(-1).textContent,'OpenRouter fallback · model response');
+  }
+});

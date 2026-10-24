@@ -58,7 +58,7 @@ final class ConversationController {
         long generation = state.generation();
         recordingAt = System.currentTimeMillis(); subtitle = "";
         audio.recording.set(true);
-        status = "Listening — right-click to send; another villager switches";
+        status = "Listening — right-click to send; another character switches";
         captureTask = CAPTURE.submit(() -> {
             try {
                 byte[] wav = audio.record();
@@ -102,12 +102,19 @@ final class ConversationController {
         if (!data.has("npc") || !data.has("dialogue")) return;
         String id = data.has("requestId") ? data.get("requestId").getAsString() : "";
         if (!EverafterClient.replyMatches(npc, state.pending(), data.get("npc").getAsString(), id) || !state.acceptReply(id)) return;
-        // Empty-ID scripted greetings cannot interrupt this explicitly started capture.
+        present(data, id);
+    }
+
+    void narrate(JsonObject data) {
+        if (!state.busy() && data.has("dialogue")) present(data, "");
+    }
+
+    private void present(JsonObject data, String id) {
         subtitle = data.get("dialogue").getAsString();
         if (subtitle.length() > 320) subtitle = subtitle.substring(0, 320);
         source = data.has("source") ? data.get("source").getAsString() : "EVERAFTER";
         boolean error = data.has("error") && data.get("error").getAsBoolean();
-        status = error ? "Use /talk or right-click the villager to try again." : "Right-click the villager to speak again";
+        status = error ? "Use /talk or right-click to try again." : "Preparing voice… right-click to interrupt and speak";
         invalidateSpeech();
         long generation = state.generation();
         if (!error && !token.isEmpty() && !subtitle.isBlank()) {
@@ -116,7 +123,9 @@ final class ConversationController {
             speechTask = SPEECH.submit(() -> {
                 try {
                     byte[] wav = request("/api/speech", "application/json", speech.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8), 10_000_000);
+                    ui(generation, () -> status = "Speaking… right-click to interrupt and speak");
                     audio.play(wav, () -> state.speechAllowed(generation));
+                    ui(generation, () -> status = "Right-click this character to speak");
                 } catch (Exception failure) {
                     ui(generation, () -> { if (state.speechAllowed(generation)) status = "Voice playback unavailable. Reply shown above; /talk still works."; });
                 }
@@ -174,7 +183,8 @@ final class ConversationController {
             byte[] bytes = stream.readNBytes(maximum + 1);
             if (bytes.length > maximum) throw new IllegalArgumentException("Voice response exceeded its limit");
             if (response.statusCode() != 200) throw new IllegalStateException(response.statusCode() == 401 || response.statusCode() == 403
-                    ? "Right-click the villager again to refresh the voice connection" : "Local voice service returned " + response.statusCode());
+                    ? "Right-click the character again to refresh the voice connection" : response.statusCode() == 422
+                    ? "No clear speech heard. Try again or use /talk." : "Local voice service returned " + response.statusCode());
             return bytes;
         }
     }

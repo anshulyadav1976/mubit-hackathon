@@ -26,6 +26,11 @@ class VoiceAudioTest {
         assertTrue(VoiceAudio.wave(new byte[48000 * 4 * 15], nativeFormat).length <= 480044);
         assertThrows(IllegalArgumentException.class, () -> VoiceAudio.wave(new byte[32000 * 16], VoiceAudio.TARGET));
     }
+    @Test void malformedSpeechNeverStartsAPlaybackProcess() {
+        VoiceAudio audio = new VoiceAudio();
+        assertThrows(javax.sound.sampled.UnsupportedAudioFileException.class, () -> audio.play(new byte[]{1, 2, 3}, () -> true));
+        audio.close();
+    }
     @Test void invalidatedSpeechNeverOpensAnAudioDeviceOrParsesStaleAudio() {
         VoiceAudio audio = new VoiceAudio();
         assertDoesNotThrow(() -> audio.play(new byte[]{1, 2, 3}, () -> false));

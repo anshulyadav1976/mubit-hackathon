@@ -41,6 +41,13 @@ public final class EverafterClient implements ClientModInitializer {
         public static final StreamCodec<RegistryFriendlyByteBuf, Reply> CODEC = StreamCodec.of((b, p) -> b.writeUtf(p.json(), 8192), b -> new Reply(b.readUtf(8192)));
         @Override public Type<Reply> type() { return TYPE; }
     }
+    public record Scene(String json) implements CustomPacketPayload {
+        public static final Type<Scene> TYPE = new Type<>(Identifier.fromNamespaceAndPath("everafter", "scene"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, Scene> CODEC = StreamCodec.of((b, p) -> b.writeUtf(p.json(), 8192), b -> new Scene(b.readUtf(8192)));
+        @Override public Type<Scene> type() { return TYPE; }
+    }
+    static boolean knownNpc(String npc) { return java.util.List.of("Mara", "Oren", "Elin", "Ivo", "Sentinel", "Warden").contains(npc); }
+
     public record Say(String json) implements CustomPacketPayload {
         public static final Type<Say> TYPE = new Type<>(Identifier.fromNamespaceAndPath("everafter", "say"));
         public static final StreamCodec<RegistryFriendlyByteBuf, Say> CODEC = StreamCodec.of((b, p) -> b.writeUtf(p.json(), 8192), b -> new Say(b.readUtf(8192)));
@@ -51,6 +58,7 @@ public final class EverafterClient implements ClientModInitializer {
         instance = this;
         PayloadTypeRegistry.playS2C().register(Open.TYPE, Open.CODEC);
         PayloadTypeRegistry.playS2C().register(Reply.TYPE, Reply.CODEC);
+        PayloadTypeRegistry.playS2C().register(Scene.TYPE, Scene.CODEC);
         PayloadTypeRegistry.playC2S().register(Say.TYPE, Say.CODEC);
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             boolean allowed = inWorld(client);
@@ -81,7 +89,7 @@ public final class EverafterClient implements ClientModInitializer {
                 JsonObject data = JsonParser.parseString(payload.json()).getAsJsonObject();
                 if (data.get("version").getAsInt() != 1) return;
                 String npc = data.get("npc").getAsString();
-                if (!java.util.List.of("Mara", "Oren", "Elin").contains(npc)) return;
+                if (!knownNpc(npc)) return;
                 int entity = data.get("entityId").getAsInt();
                 if (entity < 0 || client.player == null || !client.player.getUUID().toString().equals(data.get("playerId").getAsString())) return;
                 if (!presses.acceptOpen(entity, System.currentTimeMillis())) return;
@@ -93,6 +101,21 @@ public final class EverafterClient implements ClientModInitializer {
             } catch (RuntimeException ignored) {
                 // A malformed server message must not crash the client.
             }
+        }));
+        ClientPlayNetworking.registerGlobalReceiver(Scene.TYPE, (payload, context) -> context.client().execute(() -> {
+            Minecraft client = context.client();
+            if (!inWorld(client) || conversation != null && conversation.busy()) return;
+            try {
+                JsonObject data = JsonParser.parseString(payload.json()).getAsJsonObject();
+                if (data.get("version").getAsInt() != 1 || !client.player.getUUID().toString().equals(data.get("playerId").getAsString())) return;
+                String npc = data.get("npc").getAsString();
+                int entity = data.get("entityId").getAsInt();
+                if (!knownNpc(npc) || entity < 0) return;
+                ConversationController next = new ConversationController(npc, entity, data);
+                if (!next.inReach(client)) return;
+                cancelConversation(); conversation = next;
+                conversation.narrate(data);
+            } catch (RuntimeException ignored) { }
         }));
         ClientPlayNetworking.registerGlobalReceiver(Reply.TYPE, (payload, context) -> context.client().execute(() -> {
             if (conversation == null || !conversation.inReach(context.client())) return;

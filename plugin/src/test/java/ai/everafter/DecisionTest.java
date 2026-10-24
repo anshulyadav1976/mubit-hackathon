@@ -20,7 +20,7 @@ class DecisionTest {
         assertEquals("combat", combatFallback.route());
         assertEquals("wonder", combatFallback.mood());
         assertEquals(3, combatFallback.difficulty());
-        assertTrue(combatFallback.dialogue().contains("Hollow Watchers"));
+        assertTrue(combatFallback.dialogue().contains("Sentinel"));
         assertFalse(combatFallback.dialogue().contains("echo-stones"));
         var rescued = EverafterPlugin.Decision.fallback("rescued", combat);
         assertTrue(rescued.dialogue().contains("Elin is free"));

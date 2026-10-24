@@ -21,19 +21,19 @@ test('speech accepts only known characters, bounded text and safe identifiers', 
 
 test('hosted speech uses distinct voices, wraps PCM and caches repeated replies', async () => {
   const sent = [];
-  const service = new SpeechService({ apiKey: 'private-key', fetchImpl: async (url, options) => { sent.push({ url, body: JSON.parse(options.body) }); return new Response(Buffer.alloc(2400), { headers: { 'content-type': 'audio/pcm' } }); }, localImpl: async () => { throw Error('unexpected local'); } });
+  const service = new SpeechService({ preferLocal: false, apiKey: 'private-key', fetchImpl: async (url, options) => { sent.push({ url, body: JSON.parse(options.body) }); return new Response(Buffer.alloc(2400), { headers: { 'content-type': 'audio/pcm' } }); }, localImpl: async () => { throw Error('unexpected local'); } });
   const first = await service.speak(input);
   assert.equal(first.source, 'openrouter'); assert.equal(first.audio.length, 2444); assert.equal(first.cached, false);
   assert.equal((await service.speak(input)).cached, true);
   await service.speak({ ...input, npc: 'Oren' });
   assert.equal(sent.length, 2); assert.equal(sent[0].url, 'https://openrouter.ai/api/v1/audio/speech');
-  assert.equal(sent[0].body.voice, 'Kore'); assert.equal(sent[1].body.voice, 'Puck');
+  assert.equal(sent[0].body.voice, 'Kore'); assert.equal(sent[1].body.voice, 'Charon');
   assert.equal(sent[0].body.response_format, 'pcm'); assert.equal(JSON.stringify(first).includes('private-key'), false);
 });
 
 test('failed paid speech falls back locally and auth/credit errors stop later cloud attempts', async () => {
   let calls = 0;
-  const service = new SpeechService({ apiKey: 'key', fetchImpl: async () => { calls++; return new Response('{}', { status: 402 }); }, localImpl: async () => audio() });
+  const service = new SpeechService({ preferLocal: false, apiKey: 'key', fetchImpl: async () => { calls++; return new Response('{}', { status: 402 }); }, localImpl: async () => audio() });
   assert.equal((await service.speak(input)).source, 'macos');
   assert.equal((await service.speak({ ...input, text: 'Another reply.' })).source, 'macos');
   assert.equal(calls, 1);
@@ -43,7 +43,7 @@ test('speech budget persists across restarts and a corrupt budget fails closed f
   const runtimeDir = await mkdtemp(join(tmpdir(), 'everafter-speech-test-'));
   t.after(() => rm(runtimeDir, { recursive: true, force: true }));
   let calls = 0;
-  const options = { runtimeDir, maxCalls: 1, apiKey: 'key', fetchImpl: async () => { calls++; return new Response(Buffer.alloc(2400), { headers: { 'content-type': 'audio/pcm' } }); }, localImpl: async () => audio() };
+  const options = { runtimeDir, maxCalls: 1, preferLocal: false, apiKey: 'key', fetchImpl: async () => { calls++; return new Response(Buffer.alloc(2400), { headers: { 'content-type': 'audio/pcm' } }); }, localImpl: async () => audio() };
   const first = new SpeechService(options); await first.init(); await first.speak(input);
   assert.equal(JSON.parse(await readFile(join(runtimeDir, 'speech-usage.json'))).attempts, 1);
   const second = new SpeechService(options); await second.init(); assert.equal((await second.speak(input)).source, 'macos'); assert.equal(calls, 1);
@@ -64,4 +64,19 @@ test('paid voice HTTP route requires the game capability and rejects cross-site 
   const ok = await post({ 'X-Everafter-Token': clientToken });
   assert.equal(ok.status, 200); assert.equal(ok.headers.get('content-type'), 'audio/wav'); assert.equal(ok.headers.get('x-everafter-speech-source'), 'macos');
   assert.equal((await ok.arrayBuffer()).byteLength, audio().length);
+});
+
+ test('macOS preferred speech uses all chapter characters without a paid request', async () => {
+  const service = new SpeechService({ preferLocal: true, apiKey: 'private', fetchImpl: async () => { throw Error('must stay local'); }, localImpl: async () => audio() });
+  for (const npc of ['Mara', 'Oren', 'Elin', 'Ivo', 'Sentinel', 'Warden']) assert.equal((await service.speak({ ...input, npc })).source, 'macos');
+  assert.equal(service.used, 0);
+});
+
+test('each character has a distinct hosted voice and emotional delivery instructions', async () => {
+ const sent=[];
+ const service=new SpeechService({ preferLocal:false, apiKey:'private', fetchImpl:async (_url, options)=>{sent.push(JSON.parse(options.body));return new Response(Buffer.alloc(2400),{headers:{'content-type':'audio/pcm'}});},localImpl:async()=>{throw Error('unexpected local');} });
+ for(const npc of ['Mara','Oren','Elin','Ivo','Sentinel','Warden']) await service.speak({...input,npc});
+ assert.equal(new Set(sent.map(body=>body.voice)).size,6);
+ assert.ok(sent.every(body=>body.instructions.length>100 && body.model==='google/gemini-3.8-flash-tts'));
+ assert.match(sent[0].instructions,/relief and joy/); assert.match(sent[5].instructions,/gravelly/);
 });

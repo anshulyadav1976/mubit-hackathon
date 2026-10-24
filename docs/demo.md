@@ -1,42 +1,38 @@
 # EVERAFTER demo guide
 
-## Before presenting
+## Start
 
-With Minecraft closed, build and install the native client once with `./client-mod/build.sh` and `python3 client-mod/install-prism.py --minecraft-closed`. Use `./scripts/setup-voice.sh` to install local whisper.cpp/tiny.en on macOS. Start with `./scripts/start.sh --play` and join `127.0.0.1:25565` in the existing Prism **EVERAFTER** instance. No browser is needed for the demo; the optional director panel at <http://127.0.0.1:8765> shows diagnostics.
+Use the existing Prism **EVERAFTER** instance. With Minecraft closed, install the client with `./client-mod/build.sh` and `python3 client-mod/install-prism.py --minecraft-closed`. Local recognition is installed by `./scripts/setup-voice.sh`. Start with `./scripts/start.sh --play` and join `127.0.0.1:25565`.
 
-Check the response source shown in Minecraft chat before describing a response as AI generated. A configured key does not guarantee successful gateway responses: the source attached to each reply is the relevant evidence. Local fallback is deliberately labelled in Minecraft and remains playable.
+The game needs no browser. A small HUD, subtitles, and bubbles above moving characters carry the conversation. Right-click a character, speak, then right-click again to finish and automatically send. Capture stops after 15 seconds. Opening a menu cancels it. Type normal chat or `/talk <words>` for corrections.
 
-Right-click a villager and speak while staying in the world. Right-click again to finish; transcription and sending happen automatically. The small HUD shows listening and reply status. NPC replies appear as subtitles and play aloud without blocking movement. Local recognition uses whisper.cpp; hosted NPC speech uses OpenRouter when configured, with macOS `say` as fallback. For typed input or a misheard line, use normal chat or `/talk`. Opening a menu cancels voice capture.
+NPC voices use OpenRouter Gemini 3.8 Flash TTS, with distinct character voices and emotional delivery instructions. Check the Mac’s output device and volume if a subtitle appears silently. Unavailable hosted speech falls back to local macOS speech. A successful speech HTTP response alone does not establish audible output.
 
-The native in-world smoke test captured speaker-to-microphone audio, submitted it automatically on the next click, and received a Mubit reply from Mara without opening a screen. Movement remained available; holding the button and cancelling with Escape made no dialogue request. This is an integration check, not an accuracy benchmark. Recognition can mishear words in a noisy room; correct a line through chat or `/talk`. Subtitles remain available if playback fails.
+## Story-led demo
 
-## A short mystery playthrough
+1. Approach Mara. Let her offer the leads to Elin before answering. Ask “What happened?” if you need more context. Oren can explain other leads.
+2. Answer conversationally: “That burning compass sounds dangerous. Could we figure out why someone is guarding her before drawing our swords?” The director should infer a realm and approach from the story, rather than a preference form.
+3. Show the validated chapter preview. Revise it before crossing if desired: “Actually, the drowned page interests me more. Let’s follow that.” Wait for the response before moving away.
+4. Enter the village gate or use `/everafter go`. The chosen realm is assembled from authored scenery. Describe this as **AI-directed assembly**. Ember Keep is Nether-themed, not a real Nether-dimension portal.
+5. Meet Ivo. Follow the compass to the marked clue. Read the clue and trial inscription. Ask Ivo about your interpretation; the server checks an answer, guard victory, or evidence-based appeal before opening the first barrier.
+6. Face the Sentinel, then the Warden. Both are actual boss entities. You can challenge them, or earn a bargain through the clue, trial artifact, and earlier mercy. Saying “I won” cannot skip them.
+7. Reach Elin’s refuge after earning passage. Talk to her, walk with her toward the return gate, and reunite her with Mara. Show the celebration and the chronicle of actual outcomes. Ask Mara about the journey.
 
-1. Arrive at the lantern village. Introduce Mara: her sister Elin is missing. Right-click Mara to start listening.
-2. Say: “I prefer mystery and puzzles, an eerie atmosphere, and protecting villagers. Please keep it easy.” Right-click again to finish and send. Listen to her reply while staying in the village. The chat's next-chapter preview shows route, atmosphere, and difficulty.
-3. Right-click Oren and ask: “What should I look for beyond the crossing?” The director receives the player's current preferences and bounded conversation history.
-4. Enter the northern arch or type `/everafter go`. The server commits the selected route and assembles its authored scene. Movement begins when construction completes.
-5. Follow the compass to the first echo-stone. Right-click its block. Repeat for all three markers. The lights, labels, bossbar, and compass update as each is activated.
-6. Follow the compass to Elin. Right-click her to rescue her. Return through the southern arch or type `/everafter home`.
-7. Show Elin beside Mara, the changed village decorations, daylight, and the completed objective. Ask Mara: “What will the village remember about our journey?”
+A chapter remains committed after construction begins. For a different realm from a clean start, use `./scripts/restart.sh` and reconnect. The script gracefully stops owned services, archives narrative state, and preserves previous worlds. Do not restart during somebody else’s playthrough.
 
-## Show preference correction
+## Explain the technology accurately
 
-Before step 4, say: “Actually, I prefer combat instead of puzzles. Make it challenging and wondrous.” Wait for the new preview. Enter the crossing to commit a combat scene. Defeat its Hollow Watchers, speak to Elin, then return home.
+Every turn uses the same bounded story-director task: NPC, authoritative quest facts, recent conversation, and inferred player preferences produce dialogue and a structured proposal. The server alone controls evidence, damage, doors, boss outcomes, rescue, and reunion.
 
-A scene cannot be regenerated once committed. To show both branches from a clean beginning, run `./scripts/restart.sh`, then reconnect Minecraft. The script stops both owned services, archives narrative state, and starts a fresh story world. Old worlds and archived state remain intact. There is no browser reset button.
+The response source matters. `mubit` means a real Mubit response. `openrouter` means the inexpensive text fallback answered after a failed Mubit attempt. `fallback` means deterministic local dialogue. None is proof of a trained adapter. The production story-v2 prompt differs from the legacy adapter’s task; legacy evaluation cannot establish v2 quality.
 
-## Recovery during a demo
+Show actual request, model, latency and provider evidence if available. Training, deployment, and improvement require independent Mubit evidence; never infer them from a configured key or remembered preferences.
 
-- `/everafter status` tells you the exact next action.
-- `/everafter home` returns safely; `/everafter go` re-enters the existing unfinished chapter.
-- A dialogue request is allowed to finish before another is sent. If Mubit is unavailable, the reply carries a local-fallback label.
-- For a microphone failure, allow access for Minecraft/Java or Prism in macOS Privacy & Security settings, or type directly. If the backend restarted, cancel the current conversation and right-click the villager again to refresh the local voice token. Speech failure leaves the subtitle intact.
-- If the Minecraft player reconnects, their in-memory progress is retained for that server run. Server restarts begin a fresh quest.
-- NPCs cannot be harmed. Gear and quest progress survive death. Story boundaries return the player to a safe path.
+## Recovery
 
-## Claims supported by the implementation
-
-The demonstrated loop is conversation → validated chapter choice → actual Minecraft objectives → rescue → village consequence. Geometry and quest transitions are deterministic server code. The model contributes dialogue, route, atmosphere, and bounded difficulty choices through Mubit.
-
-The local preference profile is memory supplied to requests. The optional synthetic request script produces labelled observations and gateway metrics when explicitly run. Neither proves that a shared adapter trained successfully, nor that training improved outcomes. Quote only measured results from an actual report, and distinguish synthetic examples from live player behavior.
+- `/everafter status` gives the next action; the compass points toward it.
+- `/everafter home` returns safely. `/everafter go` re-enters the existing chapter.
+- Wait for a dialogue before starting another; narration can be interrupted by a new right-click.
+- If recognition mishears you, correct it in chat. tiny.en is not an accuracy guarantee in a noisy venue.
+- After a backend restart, right-click again to obtain its fresh voice capability.
+- Death preserves gear and progress. Reconnecting retains the current server-run quest. Restarting begins a fresh quest.

@@ -4,11 +4,16 @@ import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.concurrent.TimeUnit;
 
 /** Bounded microphone capture and WAV playback; callers use a background thread. */
 final class VoiceAudio {
     static final AudioFormat TARGET = new AudioFormat(16000, 16, 1, true, false);
     private volatile Clip playing;
+    private volatile Process player;
     private volatile TargetDataLine microphone;
     final AtomicBoolean recording = new AtomicBoolean();
     private volatile boolean closed;
@@ -63,6 +68,9 @@ final class VoiceAudio {
 
     void play(byte[] wav, java.util.function.BooleanSupplier allowed) throws Exception {
         if (closed || !allowed.getAsBoolean()) return;
+        if (System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("mac")) {
+            playMac(wav, allowed); return;
+        }
         try (AudioInputStream stream = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wav))) {
             Clip clip = AudioSystem.getClip();
             try {
@@ -71,12 +79,44 @@ final class VoiceAudio {
                     if (closed || !allowed.getAsBoolean()) return;
                     stopSpeech(); playing = clip; clip.start();
                 }
-                while (!closed && allowed.getAsBoolean() && clip.isRunning()) Thread.sleep(30);
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(45);
+                // Java Sound starts asynchronously; isRunning can still be false just after start().
+                while (!closed && allowed.getAsBoolean() && clip.getLongFramePosition() < clip.getFrameLength()
+                        && System.nanoTime() < deadline) Thread.sleep(30);
             } finally { clip.stop(); clip.close(); synchronized (this) { if (playing == clip) playing = null; } }
         }
     }
 
-    synchronized void stopSpeech() { Clip clip = playing; if (clip != null) clip.stop(); }
+    private void playMac(byte[] wav, java.util.function.BooleanSupplier allowed) throws Exception {
+        // Use the system output route on macOS, including Bluetooth and the built-in speakers.
+        try (AudioInputStream ignored = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wav))) { }
+        Path file = Files.createTempFile("everafter-voice-", ".wav", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+        Process process = null;
+        try {
+            Files.write(file, wav);
+            synchronized (this) {
+                if (closed || !allowed.getAsBoolean()) return;
+                stopSpeech();
+                ProcessBuilder command = new ProcessBuilder("/usr/bin/afplay", file.toString());
+                command.environment().remove("MUBIT_API_KEY"); command.environment().remove("OPENROUTER_API_KEY");
+                command.redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD);
+                process = command.start(); player = process;
+            }
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(45);
+            while (!closed && allowed.getAsBoolean() && process.isAlive() && System.nanoTime() < deadline) Thread.sleep(30);
+            if (process.isAlive() && !closed && allowed.getAsBoolean()) throw new IllegalStateException("Speech playback timed out");
+            if (!closed && allowed.getAsBoolean() && process.exitValue() != 0) throw new IllegalStateException("macOS could not play the NPC voice");
+        } finally {
+            if (process != null) process.destroy();
+            synchronized (this) { if (player == process) player = null; }
+            Files.deleteIfExists(file);
+        }
+    }
+
+    synchronized void stopSpeech() {
+        Clip clip = playing; if (clip != null) clip.stop();
+        Process process = player; if (process != null) process.destroy();
+    }
     void close() {
         closed = true; recording.set(false); stopSpeech();
         TargetDataLine line = microphone; if (line != null) { line.stop(); line.close(); }

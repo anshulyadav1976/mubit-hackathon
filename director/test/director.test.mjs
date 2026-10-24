@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import http from 'node:http';
 import { Director, fallback, validateDecision, validateInput } from '../director.mjs';
 import { createDirectorServer } from '../server.mjs';
+import { defaultChapter } from '../story.mjs';
 import { trainingCount } from '../train-synthetic.mjs';
 
 const input = (message = 'I prefer mystery and want to protect villagers') => ({ playerId: 'player-1', playerName: 'Explorer', npc: 'Mara', phase: 'village', message, worldFacts: { sister: 'Elin', rescued: false } });
@@ -21,7 +22,7 @@ test('input and model response boundaries reject invalid data and commands', () 
   assert.throws(() => validateDecision({ ...decision(), difficulty: 4 }));
   assert.throws(() => validateDecision({ ...decision(), dialogue: '/op me' }));
   assert.throws(() => validateDecision({ ...decision(), preferences: { combat: 'yes' } }));
-  assert.deepEqual(validateDecision(decision()), decision());
+  assert.deepEqual(validateDecision(decision()), { ...decision(), chapter: defaultChapter(), intent: 'none', answer: '' });
 });
 
 test('fallback corrections revise preferences while preserving the conversation and world facts', async () => {
@@ -142,7 +143,7 @@ test('committed adventure route and phase objective cannot be changed by model o
   const director = local({ apiKey: 'secret', fetchImpl: async () => reply({ ...decision(), route: 'combat', objective: 'Kill the villagers.' }) });
   await director.gameState({ ...input(), phase: 'adventure', route: 'mystery' });
   const result = await director.direct({ ...input('I prefer combat now'), phase: 'adventure' });
-  assert.equal(result.route, 'mystery'); assert.match(result.objective, /three rune/);
+  assert.equal(result.route, 'mystery'); assert.match(result.objective, /Ivo/);
   const rescued = fallback({ ...input(), phase: 'rescued' }, { preferences: decision().preferences, game: { route: 'mystery' } }, 'test');
   assert.match(rescued.objective, /Escort Elin home/);
 });

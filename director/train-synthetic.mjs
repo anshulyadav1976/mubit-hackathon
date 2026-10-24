@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Director } from './director.mjs';
 import { SYNTHETIC_SCENARIOS } from './fixtures/synthetic.mjs';
-import { SYSTEM_PROMPT, RESPONSE_FORMAT } from './prompt.mjs';
+import { SYSTEM_PROMPT, RESPONSE_FORMAT, STORY_CONTRACT_VERSION } from './prompt.mjs';
 
 export function trainingCount(args) {
   const index = args.indexOf('--count');
@@ -15,11 +15,12 @@ export function trainingCount(args) {
 
 export async function runSynthetic(args = process.argv.slice(2)) {
   if (!args.includes('--run')) { console.log('No requests made. Explicit paid run: node train-synthetic.mjs --run --count 40'); return; }
+  if (STORY_CONTRACT_VERSION !== 1) throw new Error('Legacy synthetic training is incompatible with story v2. No requests made.');
   const count = trainingCount(args);
   if (!process.env.MUBIT_API_KEY) throw new Error('MUBIT_API_KEY is required; no requests made');
   const runId = `synthetic-${randomUUID()}`;
   const runtimeDir = join(import.meta.dirname, 'runtime', 'synthetic-training', runId);
-  const director = new Director({ runtimeDir: null, maxCalls: count });
+  const director = new Director({ runtimeDir: null, openRouterApiKey: '', maxCalls: count });
   const observations = [];
   for (let index = 0; index < count; index++) {
     const scenarioIndex = Math.floor(index / 5);

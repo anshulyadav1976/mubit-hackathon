@@ -20,12 +20,12 @@ The [official event brief](https://luma.com/nightshift-london) lists three track
 | --- | --- |
 | Use of Mubit | Trace a real correction through a recorded request to an adapter update, then identify the model serving a later request. This remains the critical submission dependency. |
 | Usefulness | Let a player ask for puzzles instead of combat and receive a playable puzzle chapter. The prospective customer is an RPG team repeatedly authoring personalized encounters; customer demand and retention gains are hypotheses, not measured results. |
-| Technical execution | Demonstrate a complete rescue, validated scene choices, protected quest facts, bounded world construction, failure recovery and local voice input. Explain the two authored scene families honestly. |
+| Technical execution | Demonstrate a complete rescue, validated scene choices, protected quest facts, bounded world construction, failure recovery and local voice input. Explain the four authored realms, trial composition, and evidence-gated encounters honestly. |
 | Demo | Speak, correct a preference, reveal the chapter, complete an objective, and return to a changed village. Keep the console evidence ready beside the game. The public page does not specify the exact presentation duration; use the organizer's confirmed limit. |
 
 ## Suggested short presentation
 
-“Game dialogue is often disconnected from the game. In EVERAFTER, I can tell Mara that I want a gentle mystery, and that changes the chapter I actually play.”
+“Mara gives me four clues to her missing sister. I answer in my own words. That shapes the realm, its trial, and how I can confront its guardians.”
 
 Speak one preference. Show the resulting structured decision. Correct it before crossing, then choose the intended route. Enter the chapter and solve one visible objective. Use the completed rescue only after actually earning it; no presentation shortcut should masquerade as gameplay.
 
@@ -33,7 +33,7 @@ Once real training is verified: show the correction request and the resulting Mu
 
 ## Do not claim
 
-- Endless generated worlds: geometry is assembled from two authored chapter families.
+- Endless generated worlds: geometry is assembled from four authored realms with bounded encounter choices.
 - Instant training: preference memory changes immediately; provider training is asynchronous.
 - Improved quality, lower cost, or faster inference without the corresponding measured comparison.
 - A guaranteed prize or full score. A polished game does not replace the required Mubit evidence.

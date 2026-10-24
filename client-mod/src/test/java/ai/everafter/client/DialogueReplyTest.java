@@ -4,6 +4,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DialogueReplyTest {
+    @Test void onlyAuthoredCharactersCanReceiveVoiceCapabilities() {
+        for (String npc : new String[]{"Mara", "Oren", "Elin", "Ivo", "Sentinel", "Warden"}) assertTrue(EverafterClient.knownNpc(npc));
+        assertFalse(EverafterClient.knownNpc("Zombie"));
+        assertFalse(EverafterClient.knownNpc("__proto__"));
+    }
+
     @Test void staleCharactersAndOutOfOrderRepliesCannotReplaceTheCurrentConversation() {
         assertFalse(EverafterClient.replyMatches("Oren", "request-b", "Mara", "request-b"));
         assertFalse(EverafterClient.replyMatches("Oren", "request-b", "Oren", "request-a"));
