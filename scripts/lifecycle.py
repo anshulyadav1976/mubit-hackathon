@@ -38,7 +38,7 @@ def fail(message):
 
 
 def child_environment():
-    return {key: value for key, value in os.environ.items() if key != "MUBIT_API_KEY"}
+    return {key: value for key, value in os.environ.items() if key not in ("MUBIT_API_KEY", "OPENROUTER_API_KEY")}
 
 
 def java_home():
@@ -87,14 +87,17 @@ def read_record(service):
     return record
 
 
-def owned_process(service, record):
+def owned_process(service, record, after_sigterm=False):
     info = process_info(int(record["pid"]))
     if info is None:
         return False
     cwd = SERVER if service == "server" else ROOT
     expected = "paper.jar" if service == "server" else str(ROOT / "director/server.mjs")
+    actual_cwd = process_cwd(record["pid"])
+    # A terminating JVM can close its cwd before ps stops reporting the same process.
+    cwd_matches = actual_cwd == cwd.resolve() or (after_sigterm and actual_cwd is None)
     if (not record.get("executable") or info["started"] != " ".join(record.get("started", "").split()) or expected not in info["command"]
-            or not info["command"].startswith(record["executable"] + " ") or process_cwd(record["pid"]) != cwd.resolve()):
+            or not info["command"].startswith(record["executable"] + " ") or not cwd_matches):
         if process_info(int(record["pid"])) is None:
             return False
         fail("PID identity changed for " + service + "; refusing to signal it. Inspect " + str(PIDS / (service + ".json")))
@@ -201,9 +204,12 @@ def start(play=False):
     env["JAVA_HOME"] = str(home)
     env["PATH"] = str(home / "bin") + os.pathsep + env.get("PATH", "")
     env["DIRECTOR_PORT"] = "8765"
+    env["EVERAFTER_CLIENT_TOKEN_FILE"] = str(ROOT / "director/runtime/client-token")
     director_env = env.copy()
     if "MUBIT_API_KEY" in os.environ:
         director_env["MUBIT_API_KEY"] = os.environ["MUBIT_API_KEY"]
+    if "OPENROUTER_API_KEY" in os.environ:
+        director_env["OPENROUTER_API_KEY"] = os.environ["OPENROUTER_API_KEY"]
     subprocess.run([mvn, "-q", "-f", str(ROOT / "plugin/pom.xml"), "package"], cwd=str(ROOT), env=env, check=True)
     (SERVER / "plugins").mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "plugin/target/everafter.jar", SERVER / "plugins/everafter.jar")
@@ -235,9 +241,9 @@ def stop():
                 (PIDS / (name + ".json")).unlink(missing_ok=True)
                 continue
             deadline = time.monotonic() + (45 if name == "server" else 5)
-            while time.monotonic() < deadline and owned_process(name, record):
+            while time.monotonic() < deadline and owned_process(name, record, after_sigterm=True):
                 time.sleep(.2)
-            if owned_process(name, record):
+            if owned_process(name, record, after_sigterm=True):
                 fail(name + " is still saving/running. No force kill was sent; inspect its log and try stop.sh again.")
             print("Stopped " + name + " gracefully.")
         (PIDS / (name + ".json")).unlink(missing_ok=True)

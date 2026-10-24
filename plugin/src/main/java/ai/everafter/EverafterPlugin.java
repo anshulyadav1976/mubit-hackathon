@@ -16,9 +16,14 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.net.URI;
 import java.net.http.*;
 import java.time.Duration;
@@ -26,6 +31,10 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class EverafterPlugin extends JavaPlugin implements Listener {
+    private static final String OPEN = "everafter:open", SAY = "everafter:say", REPLY = "everafter:reply";
+    private NamespacedKey npcKey;
+    private UUID activeNpcEntity, lastClickedNpc;
+    private long lastNpcClick;
     private static final String API = "http://127.0.0.1:8765";
     private final Gson gson = new Gson();
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
@@ -45,7 +54,16 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
     private long lastGate;
 
     @Override public void onEnable() {
+        npcKey = new NamespacedKey(this, "npc");
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, OPEN);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, REPLY);
+        getServer().getMessenger().registerIncomingPluginChannel(this, SAY, (channel, player, bytes) -> {
+            try {
+                ClientMessage input = ClientMessage.parse(decodePayload(bytes));
+                main(() -> receiveDialogue(player, input));
+            } catch (RuntimeException invalid) { main(() -> reply(player, selectedNpc, "Invalid dialogue message. Right-click the character and try again.", "fallback", "", true)); }
+        });
         Objects.requireNonNull(getCommand("everafter")).setExecutor(this);
         Objects.requireNonNull(getCommand("talk")).setExecutor(this);
         bar = Bukkit.createBossBar("EVERAFTER • Preparing your village…", BarColor.PURPLE, BarStyle.SOLID);
@@ -131,6 +149,7 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
             v.setCustomNameVisible(true); v.setAI(false); v.setInvulnerable(true); v.setSilent(true);
             v.setCollidable(false); v.setRemoveWhenFarAway(false); v.setPersistent(true);
             v.setProfession(profession); v.setVillagerType(Villager.Type.TAIGA);
+            v.getPersistentDataContainer().set(npcKey, PersistentDataType.STRING, name);
         });
         npcs.put(npc.getUniqueId(), name); return npc;
     }
@@ -138,8 +157,15 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
     @Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player p)) { sender.sendMessage("Join Minecraft to play EVERAFTER."); return true; }
         if (command.getName().equalsIgnoreCase("talk")) {
-            if (args.length == 0) tell(p, "Use /talk <your words>. Right-click Mara, Oren, or Elin to choose who hears you.");
-            else talk(p, String.join(" ", args), selectedNpc);
+            if (args.length == 0) tell(p, "Use /talk <your words>, or /talk Oren <your words>. Right-click a character to choose them.");
+            else {
+                String explicit = canonicalNpc(args[0]);
+                if (explicit == null) talk(p, String.join(" ", args), selectedNpc);
+                else if (!owns(p) || !ready) tell(p, "Join your story before speaking to its characters.");
+                else if (explicit.equals("Elin") && !built) tell(p, "Elin is still missing beyond the crossing. Find her before speaking to her.");
+                else if (args.length == 1) { selectedNpc = explicit; tell(p, "Speaking to " + explicit + ". /talk <your words> or type in chat."); publish(); }
+                else talk(p, String.join(" ", Arrays.copyOfRange(args, 1, args.length)), explicit);
+            }
             return true;
         }
         String action = args.length == 0 ? "help" : args[0].toLowerCase(Locale.ROOT);
@@ -160,12 +186,13 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
         return true;
     }
 
-    private void talk(Player p, String message, String npc) {
+    private void talk(Player p, String message, String npc) { talk(p, message, npc, ""); }
+    private void talk(Player p, String message, String npc, String requestId) {
         if (!owns(p) || !ready) return;
         message = clean(message, 1200);
         if (message.isBlank()) return;
-        if (talking) { tell(p, "Your companion is thinking. Please wait a moment before speaking again."); return; }
-        if (!Set.of("Mara", "Oren", "Elin").contains(npc) || (npc.equals("Elin") && !built)) npc = "Mara";
+        if (talking) { String text = "Your companion is thinking. Please wait a moment before speaking again."; tell(p, text); reply(p, npc, text, "fallback", requestId, true); return; }
+        if (canonicalNpc(npc) == null || (npc.equals("Elin") && !built)) { reply(p, npc, "That character is not available yet.", "fallback", requestId, true); return; }
         selectedNpc = npc; talking = true;
         String speaker = npc;
         p.sendMessage(Component.text("You → " + speaker + " › " + message, NamedTextColor.GRAY));
@@ -177,13 +204,14 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
         publish();
         request("/api/director", "POST", gson.toJson(payload)).whenComplete((body, error) -> main(() -> {
             talking = false;
-            if (!canDeliver(requestPhase, phase)) { publish(); return; }
+            if (!canDeliver(requestPhase, phase)) { Player current = player(); if (current != null) reply(current, speaker, "The story has moved forward. Speak again when ready.", "fallback", requestId, true); publish(); return; }
             Player current = player();
             Decision answer = error == null ? Decision.parse(body, phase, decision) : Decision.fallback(phase, decision);
             if (phase.equals("village") && !built && !building) decision = answer;
             if (current != null) {
                 tell(current, answer.source.equals("mubit") ? "[Mubit director]" : "[Local fallback — Mubit unavailable]");
                 say(current, speaker, answer.dialogue);
+                reply(current, speaker, answer.dialogue, answer.source, requestId, false);
                 if (!built && !building) tell(current, "Next chapter: " + decision.route + " • " + decision.mood + " • " + decision.difficulty + "/3. Enter the northern crossing or /everafter go.");
             }
             update(); publish();
@@ -248,12 +276,8 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
 
     private boolean unlocked() { return built && (decision.route.equals("mystery") ? runes.size() == 3 : guards.isEmpty()); }
     private void rescue(Player p) {
-        if (!phase.equals("adventure")) {
-            say(p, "Elin", phase.equals("rescued") ? "The way home is open. Take the southern return arch, and I will follow you." : "You brought me home. Thank you for listening to our village."); return;
-        }
-        if (!unlocked()) { say(p, "Elin", decision.route.equals("mystery") ? "The three echo-stones bind this place. Touch every glowing rune, then come back." : "The Hollow Watchers still hold the ruins. Defeat them, then I can leave."); return; }
+        if (!phase.equals("adventure") || !unlocked()) return;
         phase = "rescued";
-        say(p, "Elin", "You found me! I thought the village had forgotten. Let's go home together.");
         title(p, "ELIN IS SAFE", "Return through the southern arch, or /everafter home.");
         p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1);
         update(); publish();
@@ -377,16 +401,103 @@ public final class EverafterPlugin extends JavaPlugin implements Listener {
         e.setCancelled(true);
         main(() -> { Player p = Bukkit.getPlayer(id); if (p != null) talk(p, message, selectedNpc); });
     }
-    @EventHandler public void onInteractEntity(PlayerInteractEntityEvent e) {
-        String name = npcs.get(e.getRightClicked().getUniqueId());
+    @EventHandler public void onInteractEntity(PlayerInteractEntityEvent e) { handleNpcClick(e); }
+    @EventHandler public void onInteractAtEntity(PlayerInteractAtEntityEvent e) { handleNpcClick(e); }
+    private void handleNpcClick(PlayerInteractEntityEvent e) {
+        String name = storyNpc(e.getRightClicked(), world, npcKey);
         if (name == null) return;
         e.setCancelled(true);
-        if (e.getHand() != EquipmentSlot.HAND || !owns(e.getPlayer())) return;
-        Player p = e.getPlayer(); selectedNpc = name;
+        Player p = e.getPlayer();
+        if (!owns(p) || !ready || !inReach(p, e.getRightClicked())) return;
+        long now = System.currentTimeMillis(); UUID target = e.getRightClicked().getUniqueId();
+        if (target.equals(lastClickedNpc) && now - lastNpcClick < 350) return;
+        lastClickedNpc = target; lastNpcClick = now;
+        selectedNpc = name; activeNpcEntity = target;
         if (name.equals("Elin")) rescue(p);
-        else if (name.equals("Mara")) say(p, name, phase.equals("complete") ? "You kept your promise. Elin is home, and I will remember the kind of hero you chose to be." : "Elin crossed the northern arch and never came back. Tell me what matters to you—puzzles, combat, wonder, or keeping our village safe.");
-        else say(p, name, phase.equals("complete") ? "I have written your journey into our village chronicle. What should the next generation remember?" : "The northern crossing follows the stories we tell. Tell me how you like to explore. For the echo-stones, seek three glowing markers and touch each one.");
+        String greeting = openingGreeting(name, phase, decision.route);
+        Map<String, Object> open = new LinkedHashMap<>();
+        open.put("version", 1); open.put("npc", name); open.put("entityId", e.getRightClicked().getEntityId());
+        open.put("phase", phase); open.put("playerId", p.getUniqueId().toString()); open.put("backendUrl", API); open.put("backendToken", backendToken());
+        sendOpening(p, this, encodePayload(gson.toJson(open)), replyPayload(name, greeting, "scripted", "", false));
+        say(p, name, greeting);
         tell(p, "Speaking to " + name + ". Type in chat or /talk <your words>."); publish();
+    }
+    static void sendOpening(Player player, Plugin plugin, byte[] open, byte[] greeting) {
+        player.sendPluginMessage(plugin, OPEN, open);
+        player.sendPluginMessage(plugin, REPLY, greeting);
+    }
+    static String openingGreeting(String npc, String phase, String route) {
+        if (npc.equals("Elin")) return switch (phase) {
+            case "complete" -> "You brought me home. Thank you for listening to our village.";
+            case "rescued" -> "You found me! I thought the village had forgotten. Take the southern return arch, and I will follow you home.";
+            default -> route.equals("mystery") ? "The three echo-stones bind this place. Touch every glowing rune, then come back." : "The Hollow Watchers still hold the ruins. Defeat them, then I can leave.";
+        };
+        if (npc.equals("Mara")) return phase.equals("complete") ? "You kept your promise. Elin is home, and I will remember the kind of hero you chose to be." : "Elin crossed the northern arch and never came back. Tell me what matters to you—puzzles, combat, wonder, or keeping our village safe.";
+        return phase.equals("complete") ? "I have written your journey into our village chronicle. What should the next generation remember?" : "The northern crossing follows the stories we tell. Tell me how you like to explore. For the echo-stones, seek three glowing markers and touch each one.";
+    }
+    private boolean inReach(Player p, Entity entity) { return inStory(p) && entity.getWorld().equals(world) && p.getLocation().distanceSquared(entity.getLocation()) <= 36; }
+    static String canonicalNpc(String text) {
+        if (text != null) for (String name : List.of("Mara", "Oren", "Elin")) if (name.equalsIgnoreCase(text)) return name;
+        return null;
+    }
+    static String storyNpc(Entity entity, World storyWorld, NamespacedKey key) {
+        if (!(entity instanceof Villager) || !entity.getWorld().equals(storyWorld)) return null;
+        return canonicalNpc(entity.getPersistentDataContainer().get(key, PersistentDataType.STRING));
+    }
+    private void receiveDialogue(Player p, ClientMessage input) {
+        Entity target = activeNpcEntity == null ? null : Bukkit.getEntity(activeNpcEntity);
+        String name = target == null ? null : storyNpc(target, world, npcKey);
+        if (!owns(p) || !ready || target == null || name == null || target.getEntityId() != input.entityId || !inReach(p, target)) {
+            reply(p, selectedNpc, "Move closer and right-click the character again.", "fallback", input.requestId, true); return;
+        }
+        talk(p, input.message, name, input.requestId);
+    }
+    private void reply(Player p, String npc, String text, String source, String requestId, boolean error) {
+        if (!p.isOnline()) return;
+        p.sendPluginMessage(this, REPLY, replyPayload(npc, text, source, requestId, error));
+    }
+    private byte[] replyPayload(String npc, String text, String source, String requestId, boolean error) {
+        return encodePayload(gson.toJson(Map.of("version", 1, "npc", npc, "dialogue", clean(text, 400), "source", source, "phase", phase, "requestId", requestId, "error", error)));
+    }
+    private String backendToken() {
+        try {
+            Path path = Path.of(System.getenv().getOrDefault("EVERAFTER_CLIENT_TOKEN_FILE", "../../director/runtime/client-token"));
+            if (Files.size(path) > 128) return "";
+            String token = Files.readString(path).strip(); return token.matches("[a-fA-F0-9]{64}") ? token : "";
+        } catch (Exception unavailable) { return ""; }
+    }
+    static byte[] encodePayload(String text) {
+        byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > 8192) throw new IllegalArgumentException("Dialogue payload too large");
+        ByteArrayOutputStream output = new ByteArrayOutputStream(); int length = bytes.length;
+        do { int part = length & 127; length >>>= 7; output.write(length == 0 ? part : part | 128); } while (length != 0);
+        output.writeBytes(bytes); return output.toByteArray();
+    }
+    static String decodePayload(byte[] payload) {
+        int length = 0, offset = 0;
+        for (int shift = 0; shift < 21; shift += 7) {
+            if (offset >= payload.length) throw new IllegalArgumentException("Missing payload length");
+            int part = payload[offset++] & 255; length |= (part & 127) << shift;
+            if ((part & 128) == 0) {
+                if (length > 8192 || payload.length - offset != length) throw new IllegalArgumentException("Invalid payload length");
+                return new String(payload, offset, length, StandardCharsets.UTF_8);
+            }
+        }
+        throw new IllegalArgumentException("Invalid payload length");
+    }
+    static record ClientMessage(int entityId, String message, String requestId) {
+        static ClientMessage parse(String json) {
+            JsonObject value = JsonParser.parseString(json).getAsJsonObject();
+            JsonElement version = value.get("version");
+            if (version == null || !version.isJsonPrimitive() || !version.getAsJsonPrimitive().isNumber() || version.getAsDouble() != 1) throw new IllegalArgumentException("Protocol version");
+            String message = value(value, "message", ""); String requestId = value(value, "requestId", "");
+            if (message.isBlank() || message.length() > 1200 || !requestId.matches("[a-zA-Z0-9_-]{1,80}")) throw new IllegalArgumentException("Invalid dialogue");
+            JsonElement entity = value.get("entityId");
+            if (entity == null || !entity.isJsonPrimitive() || !entity.getAsJsonPrimitive().isNumber() || entity.getAsDouble() != Math.rint(entity.getAsDouble()) || entity.getAsDouble() < 0 || entity.getAsDouble() > Integer.MAX_VALUE) throw new IllegalArgumentException("Invalid entity");
+            message = clean(message, 1200);
+            if (message.isBlank()) throw new IllegalArgumentException("Empty dialogue");
+            return new ClientMessage(entity.getAsInt(), message, requestId);
+        }
     }
     @EventHandler public void onInteract(PlayerInteractEvent e) {
         if (!owns(e.getPlayer()) || !inStory(e.getPlayer())) return;

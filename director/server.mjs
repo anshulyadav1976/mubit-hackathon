@@ -1,9 +1,11 @@
 import http from 'node:http';
-import { readFile, realpath, stat } from 'node:fs/promises';
+import { readFile, realpath, stat, writeFile, rename } from 'node:fs/promises';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { extname, join, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Director } from './director.mjs';
 import { transcribe, voiceAvailable } from './voice.mjs';
+import { SpeechService } from './speech.mjs';
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2' };
 export function json(response, status, data) {
@@ -23,8 +25,15 @@ export async function readJson(request, limit = 16384) {
   catch { throw Object.assign(new Error('Malformed JSON body'), { status: 400 }); }
 }
 
-export async function createDirectorServer({ director = new Director(), publicDir = join(import.meta.dirname, 'public') } = {}) {
+export async function createDirectorServer({ director = new Director(), publicDir = join(import.meta.dirname, 'public'), speech = new SpeechService({ runtimeDir: director.runtimeDir }) } = {}) {
   await director.init();
+  await speech.init();
+  const clientToken = randomBytes(32).toString('hex');
+  if (director.runtimeDir) {
+    const file = join(director.runtimeDir, 'client-token');
+    await writeFile(file + '.tmp', clientToken, { mode: 0o600 });
+    await rename(file + '.tmp', file);
+  }
   const server = http.createServer(async (request, response) => {
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('Referrer-Policy', 'no-referrer');
@@ -39,6 +48,13 @@ export async function createDirectorServer({ director = new Director(), publicDi
       if (request.url.length > 2048 || /(?:%2e|%2f|%5c|\\)/i.test(request.url) || request.url.split('?')[0].split('/').includes('..')) return json(response, 400, { error: 'Invalid path' });
       const url = new URL(request.url, `http://${request.headers.host}`);
       if (request.method === 'GET' && url.pathname === '/api/health') return json(response, 200, { ...director.health(), voiceAvailable: await voiceAvailable() });
+      if (request.method === 'POST' && url.pathname === '/api/speech') {
+        const supplied = request.headers['x-everafter-token'];
+        if (typeof supplied !== 'string' || !/^[a-f0-9]{64}$/.test(supplied) || !timingSafeEqual(Buffer.from(supplied), Buffer.from(clientToken))) return json(response, 403, { error: 'Open an NPC conversation in Minecraft before requesting speech.' });
+        const spoken = await speech.speak(await readJson(request, 4096));
+        response.writeHead(200, { 'Content-Type': 'audio/wav', 'Content-Length': spoken.audio.length, 'Cache-Control': 'no-store', 'X-Everafter-Speech-Source': spoken.source, 'X-Everafter-Speech-Cached': String(spoken.cached) });
+        return response.end(spoken.audio);
+      }
       if (request.method === 'POST' && url.pathname === '/api/transcribe') return json(response, 200, await transcribe(request));
       if (request.method === 'GET' && url.pathname === '/api/state') return json(response, 200, director.state());
       if (request.method === 'GET' && url.pathname === '/api/inbox') return json(response, 200, await director.inbox(url.searchParams.get('playerId')));
@@ -69,7 +85,7 @@ export async function createDirectorServer({ director = new Director(), publicDi
   server.requestTimeout = 35000;
   server.headersTimeout = 10000;
   server.maxHeadersCount = 40;
-  return { server, director };
+  return { server, director, clientToken };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

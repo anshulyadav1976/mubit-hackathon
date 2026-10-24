@@ -20,13 +20,20 @@ Read the [Minecraft EULA](https://aka.ms/MinecraftEULA). If you agree, accept it
 ./scripts/setup.sh --accept-eula
 ```
 
-Start both local services:
+For the in-game dialogue window, first create or use a Prism instance named **EVERAFTER** running Minecraft **1.21.11**. Close Minecraft before installing the client; the installer preserves its login, options, and worlds:
 
 ```sh
-./scripts/start.sh
+./client-mod/build.sh
+python3 client-mod/install-prism.py --minecraft-closed
 ```
 
-Open <http://127.0.0.1:8765> for the director panel. Launch the **EVERAFTER** instance in Prism Launcher and join `127.0.0.1:25565`, or use `./scripts/start.sh --play` to ask Prism to open that existing instance. The scripts do not create a Prism instance or bypass Microsoft authentication. Both services bind to loopback; the Minecraft server uses online authentication.
+Install the local recognition engine with `./scripts/setup-voice.sh` for microphone input on macOS; its prerequisites are described below. Start both local services and launch the existing Prism instance:
+
+```sh
+./scripts/start.sh --play
+```
+
+Join `127.0.0.1:25565` and right-click a villager. Conversation, microphone recording, transcript review, and spoken replies all work inside Minecraft; no browser frontend is needed. The optional [director panel](http://127.0.0.1:8765) remains available for diagnostics. The scripts do not create a Prism instance or bypass Microsoft authentication. Both services bind to loopback; the Minecraft server uses online authentication.
 
 Stop the services with:
 
@@ -46,13 +53,15 @@ Optional local speech recognition uses **whisper.cpp with tiny.en**. The voice s
 ./scripts/setup-voice.sh
 ```
 
-The director detects the installed engine and model automatically. In the director panel, choose a character and click **Speak**. Click **Stop** after speaking; recording also stops after 15 seconds. The browser sends mono PCM audio to the local `/api/transcribe` endpoint, which runs whisper.cpp on this computer. Review or edit the transcript, then press **Send** to submit it to the same dialogue flow used by Minecraft chat. Transcription never sends audio to Mubit; the confirmed text and narrative context are sent to Mubit when enabled. Temporary audio/transcript files are removed after processing. Submitted dialogue remains in local narrative history until reset or archived.
+Right-click **Mara**, **Oren**, or **Elin** to open their Minecraft dialogue window. Click **Record voice**, speak, then click **Stop recording**; capture also stops after 15 seconds. Local whisper.cpp fills the editable text field. Review or edit it and click **Send to Mara/Oren/Elin**. The server validates the selected villager, and the reply appears in that same window and plays automatically. Tab selects controls, Enter sends from the text field, Escape closes, and the mouse wheel scrolls long replies. Recording, transcription, and playback run off the render thread.
 
-**Read replies aloud** optionally uses the browser's speech-synthesis voices. The browser chooses the voice and its processing behavior; this is separate from the verified local recognition path. The speaker-to-microphone transcription path has been checked with one sentence recognized exactly; that is a smoke check, not a speech-accuracy benchmark. Microphone permission is required, and typed chat remains available.
+Recognition sends mono PCM WAV only to the local `/api/transcribe` endpoint. It does not send microphone audio to Mubit or OpenRouter. The confirmed text and narrative context go to Mubit when enabled. NPC speech uses the separate `OPENROUTER_API_KEY` and `OPENROUTER_TTS_MODEL` settings in `.env` for hosted voices; the default is `google/gemini-3.8-flash-lite-tts`. Missing credentials, an exhausted voice budget, or a cloud failure falls back to macOS `say`. If audio is unavailable, the reply remains readable and typed input still works. Hosted speech receives NPC reply text. Temporary recognition and local-speech files are removed after processing; submitted dialogue remains in local narrative history until reset or archived.
+
+Allow microphone access for Minecraft/Java or Prism in macOS System Settings → Privacy & Security → Microphone if requested. A native Minecraft Record → Stop → review → Send smoke check transcribed “I prefer puzzles and a gentle mystery. Please keep the villagers safe.” exactly and received a Mubit reply from Mara. This checks one sentence and the integrated flow; it is not a speech-accuracy benchmark.
 
 ## Play
 
-- Right-click **Mara**, **Oren**, or **Elin** to select a character. Type normal Minecraft chat or `/talk <message>` to speak.
+- Right-click **Mara**, **Oren**, or **Elin** to open their dialogue window. Record your voice or type, then Send. Normal Minecraft chat and `/talk <message>` remain available as fallback.
 - In the village, describe what you enjoy. For example: “I prefer puzzles, an eerie atmosphere, and protecting villagers.” You can correct this before entering the next area.
 - Walk through the northern crossing or use `/everafter go`. The selected scene is built once, then you are transported there.
 - **Mystery:** follow your compass to three glowing echo-stones and right-click each marker. Then find and right-click Elin.
@@ -66,6 +75,8 @@ The director detects the installed engine and model automatically. In the direct
 ```sh
 mvn -f plugin/pom.xml package
 node --test director/test/*.test.mjs
+./client-mod/build.sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s client-mod -p 'test_*.py'
 ```
 
 The plugin artifact is `plugin/target/everafter.jar`. The launch script installs it in the dedicated local Paper server. Java parser tests check malformed director data, bounded scene fields, and input sanitation. Director tests cover its own validation and local HTTP behavior. See the [demo guide](docs/demo.md), [architecture](docs/architecture.md), [evaluation evidence](docs/evaluation.md), and [judging argument](docs/judging.md) for the demo sequence and trust boundaries.
@@ -80,4 +91,4 @@ This is one adventurer's story per server run; additional players can spectate. 
 
 This gracefully stops both owned services, archives the previous director state, and starts a fresh quest and narrative memory. Old Minecraft worlds and archived narrative files are retained. The browser has no reset button. `/everafter reset` points to this safe restart command.
 
-Only two authored chapter families exist. A chosen chapter is fixed when generation begins, although conversation can continue afterward. Browser speech availability depends on the browser and its permissions. Mubit availability, model access, adapter training, and performance claims require separate provider evidence. No paid training loop or load test runs automatically on startup.
+Only two authored chapter families exist. A chosen chapter is fixed when generation begins, although conversation can continue afterward. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. Mubit availability, model access, adapter training, and performance claims require separate provider evidence. No paid training loop or load test runs automatically on startup.

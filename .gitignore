@@ -8,6 +8,8 @@ runtime/
 node_modules/
 __pycache__/
 plugin/target/
+client-mod/build/
+client-mod/.gradle/
 .tooling/
 *.jar
 *.zip

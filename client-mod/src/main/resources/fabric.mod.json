@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "everafter_client",
+  "version": "1.0.0",
+  "name": "EVERAFTER — Voices of the Village",
+  "description": "Talk to Everafter's villagers with an in-game dialogue window and local microphone transcription.",
+  "environment": "client",
+  "entrypoints": { "client": ["ai.everafter.client.EverafterClient"] },
+  "depends": { "fabricloader": ">=0.20.1", "minecraft": "1.21.11", "java": ">=21", "fabric-api": "*" }
+}

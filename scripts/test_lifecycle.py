@@ -95,6 +95,41 @@ class LifecycleTests(unittest.TestCase):
                 app.stop()
             kill.assert_not_called()
 
+    def test_sigterm_teardown_may_close_cwd_before_process_disappears(self):
+        self.record()
+        alive = {"started": "Saturday original", "command": "/our/java -jar paper.jar"}
+        with patch.object(app, "process_info", side_effect=[alive, alive, alive, None, None]), \
+                patch.object(app, "process_cwd", side_effect=[self.server.resolve(), self.server.resolve(), None]), \
+                patch.object(app.os, "kill") as kill, patch.object(app.time, "sleep") as sleep, \
+                contextlib.redirect_stdout(io.StringIO()):
+            app.stop()
+            kill.assert_called_once_with(987654, app.signal.SIGTERM)
+            sleep.assert_called_once_with(.2)
+        self.assertFalse((self.pids / "server.json").exists())
+
+    def test_missing_cwd_before_sigterm_is_not_trusted(self):
+        self.record()
+        alive = {"started": "Saturday original", "command": "/our/java -jar paper.jar"}
+        with patch.object(app, "process_info", return_value=alive), \
+                patch.object(app, "process_cwd", return_value=None), patch.object(app.os, "kill") as kill:
+            with self.assertRaisesRegex(RuntimeError, "identity changed"):
+                app.stop()
+            kill.assert_not_called()
+
+    def test_sigterm_polling_still_rejects_pid_reuse_or_executable_changes(self):
+        alive = {"started": "Saturday original", "command": "/our/java -jar paper.jar"}
+        for changed in ({"started": "Monday reused", "command": alive["command"]},
+                        {"started": alive["started"], "command": "/other/java -jar paper.jar"}):
+            with self.subTest(changed=changed):
+                self.record()
+                with patch.object(app, "process_info", side_effect=[alive, alive, changed, changed]), \
+                        patch.object(app, "process_cwd", side_effect=[self.server.resolve(), self.server.resolve(), None]), \
+                        patch.object(app.os, "kill") as kill:
+                    with self.assertRaisesRegex(RuntimeError, "identity changed"):
+                        app.stop()
+                    kill.assert_called_once_with(987654, app.signal.SIGTERM)
+                self.assertTrue((self.pids / "server.json").exists())
+
     def test_stale_pid_file_is_removed_without_signaling(self):
         self.record()
         with patch.object(app, "process_info", return_value=None), patch.object(app.os, "kill") as kill:
@@ -138,7 +173,7 @@ class LifecycleTests(unittest.TestCase):
         artifact.parent.mkdir(parents=True)
         artifact.write_bytes(b"fixture")
         version = subprocess.CompletedProcess([], 0, stdout="", stderr='openjdk version "21.0.13"')
-        with patch.dict(app.os.environ, {"MUBIT_API_KEY": "test-only-key"}), \
+        with patch.dict(app.os.environ, {"MUBIT_API_KEY": "test-only-key", "OPENROUTER_API_KEY": "test-only-router-key"}), \
                 patch.object(app, "preflight", return_value=True), \
                 patch.object(app.shutil, "which", return_value="/our/node"), \
                 patch.object(app, "text_command", side_effect=lambda command: "v22.23.2" if "--version" in command else "--env-file-if-exists"), \
@@ -149,14 +184,18 @@ class LifecycleTests(unittest.TestCase):
             app.start()
             for call in execute.call_args_list:
                 self.assertNotIn("MUBIT_API_KEY", call.kwargs["env"])
+                self.assertNotIn("OPENROUTER_API_KEY", call.kwargs["env"])
             director, server = spawn.call_args_list
             self.assertEqual(director.args[0], "director")
             self.assertEqual(director.args[3]["MUBIT_API_KEY"], "test-only-key")
+            self.assertEqual(director.args[3]["OPENROUTER_API_KEY"], "test-only-router-key")
             self.assertNotIn("MUBIT_API_KEY", server.args[3])
+            self.assertNotIn("OPENROUTER_API_KEY", server.args[3])
             app.LOGS.mkdir(parents=True)
             with patch.object(app.subprocess, "Popen") as prism:
                 app.launch_prism()
                 self.assertNotIn("MUBIT_API_KEY", prism.call_args.kwargs["env"])
+                self.assertNotIn("OPENROUTER_API_KEY", prism.call_args.kwargs["env"])
 
 
 if __name__ == "__main__":
