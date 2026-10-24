@@ -43,11 +43,26 @@ In a later operator-observed console snapshot on 2026-10-24, after the 40-reques
 
 At **16:02 BST on 2026-10-24**, the console still showed **0 kept, 0 rejected and first training not started**. It reported 63 usable calls, 64 waiting review, 63 queued, 0 over the daily limit and 6 running. The header displayed 65 calls while seven-day traffic displayed 70; these inconsistent aggregates are preserved as displayed, not reconciled into a claimed total. The routing explanation said no version was on a silent test, partial rollout or live.
 
-The subsequent console check displayed **“The engine is not answering” / “Engine unreachable”**, including after one retry. This is evidence about the console's engine connection, not proof that the inference gateway was also unavailable. No further synthetic calls were made to try to clear the queue.
+The subsequent console check displayed **“The engine is not answering” / “Engine unreachable”**, including after one retry. This is evidence about the console's engine connection, not proof that the inference gateway was also unavailable. No further synthetic calls were made at that point.
 
 ### Provider follow-up
 
-Open the [EVERAFTER task](https://app.mubit.ai/console/projects/ws-4f30c2c7f67f9351/workloads/ln_f033afe97baac3c175b28c3f) and ask the Mubit team to inspect reviewer scheduling and engine availability for task `ln_f033afe97baac3c175b28c3f`. Training requires 25 kept examples, but none had been kept or rejected despite review work showing as queued/running. Successful baseline and synthetic requests, with their middleware IDs, are recorded above. No cause has been established, no quality gates were weakened, and no support message was sent automatically. Adapter evidence and a matching post-training evaluation remain outstanding.
+The initial diagnostic for the [EVERAFTER task](https://app.mubit.ai/console/projects/ws-4f30c2c7f67f9351/workloads/ln_f033afe97baac3c175b28c3f) was a review queue with no kept/rejected examples. **That zero-example state is historical: review progress resumed during the later check below.** No cause was established, no quality gates were weakened, and no support message was sent automatically. Adapter evidence and a matching post-training evaluation remain outstanding.
+
+### Recovery check, 16:39–16:43 BST
+
+After the user relayed the CTO's request, the [first-adapter guide and recovery section](https://docs.mubit.ai/guides/first-adapter#waits-and-recovery) were re-read. They specify first training at 25 kept examples, not more than 25 raw calls. New messages can recover a failed training, but this task did not show a failed training. Read-only settings inspection confirmed:
+
+- `adapters.train=true`; first-training minimum `adapters.min_rows=25`.
+- New versions after 25 new examples (`adapters.refresh.min_new_rows=25`), a retraining threshold distinct from the first-training minimum.
+- The user-facing Training limit says **No daily limit**; `adapters.daily_job_budget=0` must not be described as a zero-job allowance.
+- No task-specific overrides; `judge.curation=off` still appeared as Middleware-locked. Its internal meaning is unverified, and the kept-example progress below shows it is not evidence that all review is disabled.
+
+Before any new request was sent, the task changed from zero to **20 kept examples**, with 1 rejected and 47 waiting for review, 68 usable calls, 6 reviews running, 0 over today's limit, and first training not started. Service status was Operational. The recovery therefore cannot be attributed to the subsequent request.
+
+One fresh, user-authorized synthetic preference-correction example was sent using the unchanged production model/prompt/format in an isolated in-memory Director, leaving the live game untouched. At **16:40:31 BST**, it returned a valid mystery/eerie/difficulty-1 decision in **2,479 ms**, with 785 prompt and 199 completion tokens, no fallback/error, and middleware ID `mreq_01a16e9211ed7c439e810ee5b0ccc910`. Evidence: ignored `director/runtime/diagnostics/recovery-a83f02f5-a9e1-4c28-88f2-acbafb0505cc.json`. This is a submitted call, not a claim that this particular example was kept or trained. No settings were changed and no batch or retry was run.
+
+At **16:43 BST**, the same task visibly changed to **Training / Training v1**, with first training **started just now**, job `ftjob_7b85f04e`. Details showed **38 kept, 1 rejected, 6 waiting for review and 23 couldn't be reviewed**, across 29 sessions with kept examples. There were no serving routes and no test result yet. The console still displayed 70 calls, so the new request's appearance in those aggregates was not established. The earlier review blockage is no longer the current state: the first training run has started. This does not establish a completed adapter, a passing evaluation or serving; it also does not establish that the one added request caused training to start.
 
 ## Native Minecraft gameplay check
 
