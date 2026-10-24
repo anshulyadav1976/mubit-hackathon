@@ -47,7 +47,7 @@ The subsequent console check displayed **“The engine is not answering” / “
 
 ### Provider follow-up
 
-The initial diagnostic for the [EVERAFTER task](https://app.mubit.ai/console/projects/ws-4f30c2c7f67f9351/workloads/ln_f033afe97baac3c175b28c3f) was a review queue with no kept/rejected examples. **That zero-example state is historical: review progress resumed during the later check below.** No cause was established, no quality gates were weakened, and no support message was sent automatically. Adapter evidence and a matching post-training evaluation remain outstanding.
+The initial diagnostic for the [EVERAFTER task](https://app.mubit.ai/console/projects/ws-4f30c2c7f67f9351/workloads/ln_f033afe97baac3c175b28c3f) was a review queue with no kept/rejected examples. **That zero-example state is historical: review progress resumed during the later check below.** No cause was established, no quality gates were weakened, and no support message was sent automatically. A passing adapter, serving evidence and a matching application-level post-training evaluation remain outstanding.
 
 ### Recovery check, 16:39–16:43 BST
 
@@ -63,6 +63,14 @@ Before any new request was sent, the task changed from zero to **20 kept example
 One fresh, user-authorized synthetic preference-correction example was sent using the unchanged production model/prompt/format in an isolated in-memory Director, leaving the live game untouched. At **16:40:31 BST**, it returned a valid mystery/eerie/difficulty-1 decision in **2,479 ms**, with 785 prompt and 199 completion tokens, no fallback/error, and middleware ID `mreq_01a16e9211ed7c439e810ee5b0ccc910`. Evidence: ignored `director/runtime/diagnostics/recovery-a83f02f5-a9e1-4c28-88f2-acbafb0505cc.json`. This is a submitted call, not a claim that this particular example was kept or trained. No settings were changed and no batch or retry was run.
 
 At **16:43 BST**, the same task visibly changed to **Training / Training v1**, with first training **started just now**, job `ftjob_7b85f04e`. Details showed **38 kept, 1 rejected, 6 waiting for review and 23 couldn't be reviewed**, across 29 sessions with kept examples. There were no serving routes and no test result yet. The console still displayed 70 calls, so the new request's appearance in those aggregates was not established. The earlier review blockage is no longer the current state: the first training run has started. This does not establish a completed adapter, a passing evaluation or serving; it also does not establish that the one added request caused training to start.
+
+### First version result, inspected after 17:08 BST
+
+The console created adapter `ad_lane_a96a2bdc`, version **v1**, at **16:48:45 BST**, based on `Qwen/Qwen3-4B-Instruct-2507`. The completed run returned **Prompt only / Not ready yet**, not a passing adapter. Its version-specific training-example count was not reported; the task's 38-kept snapshot must not be presented as the exact training split.
+
+Mubit's test set `gs_r4_ck7ad45aafa4fbda7a` contains 12 required held-out cases. It reported **adapter 0/12, base model plus prompt 0/12, target 95%**, with a separate minimum of **20 judged cases** for going live. Recorded provider answers are marked pass per case; the aggregate provider-model row says not measured, so this is not a fresh three-model benchmark. The release explanation cited the failed verdict, insufficient case count and no improvement over the base. Try it was disabled and no request path pointed to the adapter.
+
+Three displayed failed response pairs were inspected. Both sides returned structured narrative decisions. The third pair agreed on route `combat`, mood `eerie`, difficulty `2` and all three preference flags, while dialogue/objective/reason wording differed. The first two pairs also differed on mood. The UI did not expose the exact per-field grading rubric or input with these replies; this is insufficient to conclude the grader is wrong or that prose comparison caused the failures. The next diagnostic for Mubit is to inspect the failing conformance checks for this test set before choosing targeted training data. No additional calls or settings changes were made in this inspection.
 
 ## Native Minecraft gameplay check
 

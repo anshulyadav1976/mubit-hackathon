@@ -4,7 +4,7 @@ A local Minecraft story about a village, a missing sister, and a next chapter th
 
 Speak with Mara and archivist Oren. Prefer puzzles to combat? Want a gentler, more wondrous journey? Tell them. The director selects a bounded mystery or combat chapter, its atmosphere, and one of three challenge levels. Enter the crossing, rescue Elin, and bring her home to a visibly changed village.
 
-The Java plugin controls every game rule and quest transition. Mubit supplies dialogue and validated scene choices through a local Node director. Scenes are assembled from authored Minecraft geometry; the model does not issue commands or place arbitrary blocks. Preferences and conversation history are ordinary session memory. A trained adapter or measured training improvement has **not** been established by this implementation.
+The Java plugin controls every game rule and quest transition. Mubit supplies dialogue and validated scene choices through a local Node director. Scenes are assembled from authored Minecraft geometry; the model does not issue commands or place arbitrary blocks. Preferences and conversation history are ordinary session memory. Mubit completed a v1 training run, but its evaluation returned **Prompt only**, with 0/12 tests passed and no serving route. A passing adapter or measured training improvement has **not** been established; see the evaluation evidence below.
 
 ## Run locally
 
