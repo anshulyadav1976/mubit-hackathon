@@ -14,3 +14,24 @@ client-mod/.gradle/
 *.jar
 *.zip
 *.tar.gz
+
+# Local film captures and generated media; keep fonts, vendor code and compositions.
+/media/everafter-film/**/*.mp4
+/media/everafter-film/**/*.mov
+/media/everafter-film/**/*.m4v
+/media/everafter-film/**/*.webm
+/media/everafter-film/**/*.wav
+/media/everafter-film/**/*.aiff
+/media/everafter-film/**/*.aif
+/media/everafter-film/**/*.pcm
+# Private capture provenance and local build/check state.
+/media/everafter-film/**/capture-manifest.json
+/media/everafter-film/**/*.sources.json
+/media/everafter-film/**/build-status.json
+/media/everafter-film/**/check-result.json
+/media/everafter-film/**/.hyperframes/
+/media/everafter-film/**/qa/
+/media/everafter-film/**/snapshots/
+/media/everafter-film/**/timeline-check.json
+/media/everafter-film/teaser/selection.json
+/media/everafter-film/**/preview.json

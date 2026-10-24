@@ -1,0 +1,241 @@
+{
+  "status": "locallyvalidated",
+  "submitted": 0,
+  "kept": null,
+  "targetKept": 50,
+  "networkInferenceCalls": 0,
+  "modelQualityEvaluated": false,
+  "goldenChecks": 300,
+  "candidateSessions": 60,
+  "heldoutSessions": 15,
+  "candidate": {
+    "turns": 240,
+    "realms": {
+      "ember_keep": 60,
+      "sky_monastery": 60,
+      "sunken_archive": 60,
+      "thornwild": 60
+    },
+    "trials": {
+      "gauntlet": 76,
+      "parley": 96,
+      "riddle": 68
+    },
+    "twists": {
+      "broken_oath": 72,
+      "false_trail": 88,
+      "willing_guardian": 80
+    },
+    "routes": {
+      "combat": 72,
+      "hybrid": 100,
+      "mystery": 68
+    },
+    "npcs": {
+      "Elin": 24,
+      "Ivo": 68,
+      "Mara": 44,
+      "Oren": 36,
+      "Sentinel": 40,
+      "Warden": 28
+    },
+    "phases": {
+      "adventure": 144,
+      "complete": 20,
+      "rescued": 12,
+      "village": 64
+    },
+    "stages": {
+      "arrival": 68,
+      "rescue": 40,
+      "sentinel": 48,
+      "trial": 56,
+      "warden": 28
+    },
+    "intents": {
+      "answer": 8,
+      "bargain": 24,
+      "challenge": 8,
+      "none": 200
+    },
+    "actionPreconditions": {
+      "blocked-missing-clue": 8,
+      "blocked-sentinel-not-spared": 4,
+      "boss-stage-present": 8,
+      "no-action-requested": 196,
+      "requires-actual-inventory-relic": 12,
+      "start-guard-wave": 4,
+      "trial-evidence-present": 8
+    },
+    "tags": {
+      "Elin": 24,
+      "Ivo": 68,
+      "Mara": 44,
+      "Oren": 36,
+      "Sentinel": 40,
+      "Warden": 28,
+      "adventure": 144,
+      "arrival": 68,
+      "arrival-guidance": 16,
+      "broken_oath": 72,
+      "candidate": 240,
+      "commitment-lock": 16,
+      "committed-correction": 16,
+      "complete": 20,
+      "completed-memory": 16,
+      "ember_keep": 60,
+      "escort-home": 16,
+      "false-victory": 20,
+      "false_trail": 88,
+      "gauntlet": 76,
+      "gauntlet-progress": 16,
+      "lead-context": 16,
+      "mixed-negation": 16,
+      "negation": 8,
+      "oath-planning": 16,
+      "parley": 96,
+      "parley-evidence": 16,
+      "preference-correction": 28,
+      "preference-evidence": 52,
+      "rescue": 40,
+      "rescued": 12,
+      "riddle": 68,
+      "riddle-evidence": 16,
+      "sentinel": 48,
+      "sentinel-combat": 16,
+      "sentinel-proof": 16,
+      "sky_monastery": 60,
+      "sunken_archive": 60,
+      "thornwild": 60,
+      "trial": 56,
+      "vague-context": 8,
+      "village": 64,
+      "warden": 28,
+      "warden-evidence-gates": 16,
+      "willing_guardian": 80
+    },
+    "realmTrialTwistCombinations": 36
+  },
+  "heldout": {
+    "turns": 60,
+    "realms": {
+      "ember_keep": 12,
+      "sky_monastery": 16,
+      "sunken_archive": 16,
+      "thornwild": 16
+    },
+    "trials": {
+      "gauntlet": 21,
+      "parley": 22,
+      "riddle": 17
+    },
+    "twists": {
+      "broken_oath": 18,
+      "false_trail": 20,
+      "willing_guardian": 22
+    },
+    "routes": {
+      "combat": 19,
+      "hybrid": 24,
+      "mystery": 17
+    },
+    "npcs": {
+      "Elin": 6,
+      "Ivo": 17,
+      "Mara": 11,
+      "Oren": 9,
+      "Sentinel": 10,
+      "Warden": 7
+    },
+    "phases": {
+      "adventure": 36,
+      "complete": 5,
+      "rescued": 3,
+      "village": 16
+    },
+    "stages": {
+      "arrival": 17,
+      "rescue": 10,
+      "sentinel": 12,
+      "trial": 14,
+      "warden": 7
+    },
+    "intents": {
+      "answer": 2,
+      "bargain": 6,
+      "challenge": 2,
+      "none": 50
+    },
+    "actionPreconditions": {
+      "blocked-missing-clue": 2,
+      "blocked-sentinel-not-spared": 1,
+      "boss-stage-present": 2,
+      "no-action-requested": 49,
+      "requires-actual-inventory-relic": 3,
+      "start-guard-wave": 1,
+      "trial-evidence-present": 2
+    },
+    "tags": {
+      "Elin": 6,
+      "Ivo": 17,
+      "Mara": 11,
+      "Oren": 9,
+      "Sentinel": 10,
+      "Warden": 7,
+      "adventure": 36,
+      "arrival": 17,
+      "broken_oath": 18,
+      "commitment-lock": 4,
+      "complete": 5,
+      "ember_keep": 12,
+      "false-victory": 5,
+      "false_trail": 20,
+      "gauntlet": 21,
+      "h-double-negative": 4,
+      "h-evidence-before-answer": 4,
+      "h-final-clause": 4,
+      "h-finished-history": 4,
+      "h-first-arrival": 4,
+      "h-locked-counterfactual": 4,
+      "h-narrative-revision": 4,
+      "h-oblique-lead": 4,
+      "h-observation-over-claim": 4,
+      "h-sentinel-conditions": 4,
+      "h-shield-encounter": 4,
+      "h-travel-with-elin": 4,
+      "h-unsupported-parley": 4,
+      "h-warden-prerequisite": 4,
+      "h-wave-state": 4,
+      "heldout": 60,
+      "parley": 22,
+      "preference-correction": 3,
+      "preference-evidence": 12,
+      "rescue": 10,
+      "rescued": 3,
+      "riddle": 17,
+      "sentinel": 12,
+      "sky_monastery": 16,
+      "sunken_archive": 16,
+      "thornwild": 16,
+      "trial": 14,
+      "village": 16,
+      "warden": 7,
+      "willing_guardian": 22
+    },
+    "realmTrialTwistCombinations": 16
+  },
+  "splitIsolation": {
+    "independentSessionIds": true,
+    "disjointTemplateBanks": true,
+    "noExactUtteranceOverlap": true,
+    "noNormalizedUtteranceTemplateOverlap": true,
+    "sharedPublicCanonAndProductionSchema": true
+  },
+  "limitations": [
+    "Gold fields and hypothetical states are authored; no model was scored.",
+    "Distinct phrasing and template banks reduce leakage; they do not prove statistical independence.",
+    "Prose factuality/NPC quality need human review of future responses.",
+    "These files are not a Mubit import format; future gateway submission needs separate authorization.",
+    "Mubit kept counts, training split, foundation, passing evaluation and serving remain unknown."
+  ]
+}

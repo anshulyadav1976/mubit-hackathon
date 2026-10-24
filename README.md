@@ -93,3 +93,9 @@ This is one adventurer's story per server run; additional players can spectate. 
 This gracefully stops both owned services, archives the previous director state, and starts a fresh quest and narrative memory. Old Minecraft worlds and archived narrative files are retained. The browser has no reset button. `/everafter reset` points to this safe restart command.
 
 Four authored realms combine with three trial types and bounded story twists. This is AI-directed assembly, not arbitrary generated terrain or endless content. A chosen chapter is fixed when construction begins; conversations and validated encounters continue within it. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. Mubit availability, model access, adapter training, and performance claims require separate provider evidence. No paid training loop or load test runs automatically on startup.
+
+## Film and prepared training corpus
+
+The [film package](media/everafter-film/README.md) contains editable HyperFrames projects for a 165-second film and 20-second teaser, a six-slide PDF builder, and the Minecraft recorder. Actual captures and private request provenance stay local. The film uses a labelled continuous replay of a verified Mubit decision, historical session counters, and explicit prepared-training status; it does not claim a passing adapter or measured savings.
+
+The [story-v2 corpus](docs/story-v2-training-preparation.md) is frozen: **240 authored candidate turns across 60 sessions**, plus **60 held-out turns across 15 separate sessions**. All 300 pass offline validation. This is preparation, not Mubit acceptance: **zero batch examples submitted, kept count unknown, target 50**. Submission and provider evaluation remain separate future actions.

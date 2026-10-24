@@ -7,7 +7,7 @@ import { runSynthetic } from '../train-synthetic.mjs';
 const input = (message='Hello') => ({playerId:'story-test',playerName:'Tester',npc:'Mara',phase:'village',message,worldFacts:{}});
 const decision = () => ({dialogue:'The drowned page carries Elin’s mark. Shall we follow it?',route:'hybrid',mood:'wonder',difficulty:2,objective:'Follow Elin.',preferences:{combat:true,mystery:true,protectVillagers:true},reason:'The player wants clues and action.',chapter:defaultChapter('hybrid','sunken_archive'),intent:'none',answer:''});
 const response = value => new Response(JSON.stringify({id:'completion-id',choices:[{message:{content:JSON.stringify(value)}}],usage:{prompt_tokens:10,completion_tokens:20,total_tokens:30}}),{headers:{'x-middleware-request-id':'mreq_story'}});
-const local = options => new Director({apiKey:'',openRouterApiKey:'',runtimeDir:null,...options});
+const local = options => new Director({apiKey:'',runtimeDir:null,...options});
 
 test('story catalogue validates all authored combinations and strictly bounds supplied fields',()=>{
   for(const realm of REALMS) for(const trial of TRIALS) for(const twist of TWISTS) assert.equal(validateDecision({...decision(),chapter:{realm,trial,twist}}).chapter.realm,realm);
@@ -53,16 +53,33 @@ test('same-phase late replies use latest stage facts instead of stale trial conv
   await director.gameState({...input(),phase:'adventure',route:'mystery',questStage:'rescue',worldFacts:{questStage:'rescue',currentObjective:'Reach Elin’s refuge.'}});
   finish(response({...decision(),intent:'answer',answer:'shadow'})); const result=await pending;
   assert.equal(result.source,'fallback'); assert.equal(result.intent,'none'); assert.equal(result.answer,''); assert.equal(result.objective,'Reach Elin’s refuge.');
+  assert.deepEqual(director.state().conversation.map(message=>message.requestId),[result.requestId,result.requestId]);
+  assert.equal(director.state().recentRequests[0].requestId,result.requestId);
+  assert.equal(director.state().conversation[1].text,result.dialogue);
 });
 
-test('OpenRouter text fallback follows only failed Mubit, shares bounds, records real source, and never exposes errors or keys',async()=>{
-  const requests=[]; const director=local({apiKey:'mubit-secret',openRouterApiKey:'router-secret',fetchImpl:async(url,opts)=>{requests.push({url,body:JSON.parse(opts.body)}); return requests.length===1?new Response('{"error":{"message":"mubit-secret router-secret"}}',{status:503}):response(decision());}});
-  const result=await director.direct(input()); assert.equal(result.source,'openrouter'); assert.equal(result.model,'google/gemini-2.5-flash-lite');
-  assert.equal(requests.length,2); assert.equal(requests[1].url,'https://openrouter.ai/api/v1/chat/completions'); assert.deepEqual(requests[0].body.messages,requests[1].body.messages);
-  assert.equal(requests[1].body.max_tokens,900); assert.equal(director.state().metrics.providerAttempts,2); assert.equal(director.state().metrics.openrouterCalls,1);
-  assert.deepEqual(director.state().recentRequests[0].attempts.map(x=>x.provider),['mubit','openrouter']); assert.doesNotMatch(JSON.stringify(director.state()),/mubit-secret|router-secret/);
-  let count=0; const success=local({apiKey:'key',openRouterApiKey:'router',fetchImpl:async()=>{count++;return response(decision());}}); await success.direct(input()); assert.equal(count,1);
-  const offline=local({openRouterApiKey:'router',fetchImpl:()=>{throw new Error('Offline must never fetch');}}); assert.equal((await offline.direct(input())).source,'fallback');
+test('Mubit failure stays local even with legacy or environment OpenRouter credentials',async()=>{
+  const previous=process.env.OPENROUTER_API_KEY; process.env.OPENROUTER_API_KEY='environment-router-secret';
+  try {
+    for(const failure of ['http','invalid','timeout']) {
+      const requests=[]; const director=local({apiKey:'mubit-secret',openRouterApiKey:'legacy-router-secret',fetchImpl:async(url,opts)=>{
+        requests.push({url,body:JSON.parse(opts.body)});
+        if(failure==='timeout') throw new DOMException('secret error','TimeoutError');
+        if(failure==='invalid') return response({...decision(),route:'invalid'});
+        return new Response('{"error":{"code":"budget_exhausted","message":"mubit-secret environment-router-secret"}}',{status:503,headers:{'x-middleware-request-id':'mreq_failed'}});
+      }});
+      const result=await director.direct(input()); const state=director.state(); const trace=state.recentRequests[0];
+      assert.equal(result.source,'fallback'); assert.match(result.reason,/^Local fallback:/);
+      assert.equal(requests.length,1); assert.equal(requests[0].url,'https://api.mubit.ai/openai/v1/chat/completions');
+      assert.equal(state.metrics.providerAttempts,1); assert.equal(state.metrics.errors,1); assert.equal(state.metrics.fallbackCalls,1);
+      assert.deepEqual(trace.attempts.map(x=>x.provider),['mubit']);
+      assert.equal(trace.errorCode,failure==='http'?'http_503':failure==='timeout'?'timeout':'invalid_or_unavailable_response');
+      if(failure==='http') { assert.equal(trace.providerRequestId,'mreq_failed'); assert.equal(trace.gatewayErrorCode,'budget_exhausted'); }
+      assert.doesNotMatch(JSON.stringify(state),/mubit-secret|router-secret|secret error/);
+    }
+    const offline=local({openRouterApiKey:'legacy-router-secret',fetchImpl:()=>{throw new Error('Offline must never fetch');}});
+    assert.equal((await offline.direct(input())).source,'fallback'); assert.equal(offline.state().metrics.providerAttempts,0);
+  } finally { if(previous===undefined) delete process.env.OPENROUTER_API_KEY; else process.env.OPENROUTER_API_KEY=previous; }
 });
 
 test('legacy paid training refuses the changed production contract before network or ledger writes',async()=>{
@@ -71,13 +88,11 @@ test('legacy paid training refuses the changed production contract before networ
 });
 
 
-test('text fallback failure is local and bounded by the same total call budget',async()=>{
-  let calls=0; const director=local({apiKey:'mubit-key',openRouterApiKey:'router-key',maxCalls:2,fetchImpl:async()=>{calls++;return new Response('{"error":{"message":"router-key"}}',{status:503});}});
-  const result=await director.direct(input()); assert.equal(result.source,'fallback'); assert.equal(calls,2);
-  assert.equal(director.state().metrics.errors,2); assert.doesNotMatch(JSON.stringify(director.state()),/router-key|mubit-key/);
-  await director.direct(input()); assert.equal(calls,2);
-  let oneCall=0; const limited=local({apiKey:'key',openRouterApiKey:'router',maxCalls:1,fetchImpl:async()=>{oneCall++;return new Response('',{status:503});}});
-  assert.equal((await limited.direct(input())).source,'fallback'); assert.equal(oneCall,1);
+test('each failed Mubit turn consumes one request and the process budget remains bounded',async()=>{
+  let calls=0; const director=local({apiKey:'mubit-key',maxCalls:2,fetchImpl:async()=>{calls++;return new Response('',{status:503});}});
+  for(let i=0;i<3;i++) assert.equal((await director.direct(input())).source,'fallback');
+  assert.equal(calls,2); assert.equal(director.state().metrics.errors,2); assert.equal(director.state().metrics.providerAttempts,2);
+  assert.equal(director.state().recentRequests[2].attempts.length,0);
 });
 
 test('fallback acknowledgement preserves the offered realm, trial, twist and custom chapter text',async()=>{
@@ -98,19 +113,17 @@ test('fallback does not impersonate Ivo when Mara or Oren is asked for arrival g
   }
 });
 
-test('usage includes both paid attempts even when their response content fails validation',async()=>{
-  for(const secondValid of [true,false]) {
-    let calls=0; const director=local({apiKey:'key',openRouterApiKey:'router',fetchImpl:async()=>{
-      calls++; const value=calls===2&&secondValid?decision():{...decision(),route:'invalid'};
-      return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(value)}}],usage:{prompt_tokens:10,completion_tokens:20,total_tokens:30}}));
-    }});
-    await director.direct(input()); const state=director.state(); const telemetry=state.recentRequests[0];
-    assert.equal(state.metrics.providerAttempts,2); assert.equal(state.metrics.totalTokens,60);
-    assert.equal(telemetry.tokens.total_tokens,60); assert.equal(telemetry.tokenUsageComplete,true);
-    assert.deepEqual(telemetry.attempts.map(item=>item.tokens.total_tokens),[30,30]);
+test('Mubit usage remains counted when content validation fails; missing usage stays unknown',async()=>{
+  for(const valid of [true,false]) {
+    const director=local({apiKey:'key',fetchImpl:async()=>response(valid?decision():{...decision(),route:'invalid'})});
+    const result=await director.direct(input()); const state=director.state(); const telemetry=state.recentRequests[0];
+    assert.equal(result.source,valid?'mubit':'fallback');
+    assert.equal(state.metrics.providerAttempts,1); assert.equal(state.metrics.totalTokens,30);
+    assert.equal(telemetry.tokens.total_tokens,30); assert.equal(telemetry.tokenUsageComplete,true);
+    assert.deepEqual(telemetry.attempts.map(item=>item.tokens.total_tokens),[30]);
   }
-  const missing=local({apiKey:'key',openRouterApiKey:'router',fetchImpl:async()=>new Response('',{status:503})});
+  const missing=local({apiKey:'key',fetchImpl:async()=>new Response('',{status:503})});
   await missing.direct(input()); const telemetry=missing.state().recentRequests[0];
   assert.equal(telemetry.tokens.total_tokens,null); assert.equal(telemetry.tokenUsageComplete,false);
-  assert.equal(missing.state().metrics.unreportedUsageAttempts,2);
+  assert.equal(missing.state().metrics.unreportedUsageAttempts,1);
 });

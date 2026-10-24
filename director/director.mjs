@@ -98,8 +98,8 @@ export function fallback(input, profile, cause) {
 }
 
 export class Director {
-  constructor({ apiKey = process.env.MUBIT_API_KEY ?? '', model = process.env.MUBIT_MODEL ?? 'gpt-6-luna', openRouterApiKey = process.env.OPENROUTER_API_KEY ?? '', openRouterModel = process.env.OPENROUTER_TEXT_MODEL ?? 'google/gemini-2.5-flash-lite', baseUrl = process.env.MUBIT_BASE_URL ?? 'https://api.mubit.ai/openai/v1', timeoutMs = Number(process.env.MUBIT_TIMEOUT_MS ?? 15000), maxCalls = Number(process.env.MUBIT_MAX_CALLS ?? 120), runtimeDir = join(import.meta.dirname, 'runtime'), fetchImpl = fetch } = {}) {
-    this.apiKey = apiKey; this.model = model; this.openRouterApiKey = openRouterApiKey; this.openRouterModel = openRouterModel; this.baseUrl = baseUrl.replace(/\/$/, ''); this.timeoutMs = Math.max(100, Math.min(timeoutMs || 15000, 30000)); this.maxCalls = Math.max(0, Math.min(maxCalls || 0, 1000)); this.runtimeDir = runtimeDir; this.fetch = fetchImpl; this.data = fresh(); this.busy = new Set(); this.pendingSave = Promise.resolve(); this.providerCalls = 0;
+  constructor({ apiKey = process.env.MUBIT_API_KEY ?? '', model = process.env.MUBIT_MODEL ?? 'gpt-6-luna', baseUrl = process.env.MUBIT_BASE_URL ?? 'https://api.mubit.ai/openai/v1', timeoutMs = Number(process.env.MUBIT_TIMEOUT_MS ?? 15000), maxCalls = Number(process.env.MUBIT_MAX_CALLS ?? 120), runtimeDir = join(import.meta.dirname, 'runtime'), fetchImpl = fetch } = {}) {
+    this.apiKey = apiKey; this.model = model; this.baseUrl = baseUrl.replace(/\/$/, ''); this.timeoutMs = Math.max(100, Math.min(timeoutMs || 15000, 30000)); this.maxCalls = Math.max(0, Math.min(maxCalls || 0, 1000)); this.runtimeDir = runtimeDir; this.fetch = fetchImpl; this.data = fresh(); this.busy = new Set(); this.pendingSave = Promise.resolve(); this.providerCalls = 0;
     const url = new URL(this.baseUrl);
     if (url.origin !== 'https://api.mubit.ai' || url.pathname.replace(/\/$/, '') !== '/openai/v1' || url.search || url.hash || url.username || url.password) throw new Error('MUBIT_BASE_URL must be https://api.mubit.ai/openai/v1');
   }
@@ -218,29 +218,7 @@ export class Director {
           attempts.push({ provider: 'mubit', providerRequestId, tokens: reportedTokens(usage), errorCode, gatewayErrorCode });
         }
       }
-      // One bounded text fallback follows a failed Mubit attempt; it is never used by an offline/no-key run.
-      if (source === 'fallback' && attempts.length && this.openRouterApiKey && this.providerCalls < this.maxCalls) {
-        this.providerCalls++; this.data.metrics.providerAttempts++;
-        const fallbackStart = performance.now();
-        let fallbackRequestId = null; let fallbackUsage = {};
-        try {
-          const response = await this.fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { Authorization: `Bearer ${this.openRouterApiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: this.openRouterModel, messages, response_format: RESPONSE_FORMAT, max_tokens: 900 }), signal: AbortSignal.timeout(this.timeoutMs) });
-          fallbackRequestId = response.headers.get('x-request-id')?.slice(0,128) ?? null;
-          if (!response.ok) throw Object.assign(new Error('Text fallback rejected request'), { code: `http_${response.status}` });
-          const text = await response.text();
-          if (text.length > 64000) throw new Error('Oversized text fallback response');
-          const raw = JSON.parse(text);
-          if (!fallbackRequestId && typeof raw.id === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(raw.id)) fallbackRequestId = raw.id;
-          fallbackUsage = raw.usage ?? {};
-          decision = validateDecision(JSON.parse(raw.choices?.[0]?.message?.content));
-          source = 'openrouter'; resultModel = this.openRouterModel; providerRequestId = fallbackRequestId;
-          attempts.push({ provider: 'openrouter', providerRequestId: fallbackRequestId, tokens: reportedTokens(fallbackUsage), latencyMs: Math.round(performance.now()-fallbackStart), errorCode: null });
-        } catch (error) {
-          const code = error.name === 'TimeoutError' || error.name === 'AbortError' ? 'timeout' : error.code?.startsWith('http_') ? error.code : 'invalid_or_unavailable_response';
-          attempts.push({ provider: 'openrouter', providerRequestId: fallbackRequestId, tokens: reportedTokens(fallbackUsage), latencyMs: Math.round(performance.now()-fallbackStart), errorCode: code });
-          cause = `Mubit ${cause}; text fallback ${code}`; this.data.metrics.errors++;
-        }
-      }
+      // Story text uses Mubit exclusively. Failure stays local and is labelled below.
       if (source === 'fallback') decision = fallback(input, profile, cause);
       const phase = profile.game && profile.game !== gameAtStart ? profile.game.phase : input.phase;
       const facts = factsOf(input, profile.game);
@@ -261,7 +239,7 @@ export class Director {
       profile.preferences = finalPreferences;
       const latencyMs = Math.round(performance.now() - start);
       const result = { ...decision, source, latencyMs, requestId, model: resultModel, sessionId: profile.sessionId };
-      profile.conversation = [...profile.conversation, { role: 'user', npc: input.npc, text: input.message, at: new Date().toISOString() }, { role: 'assistant', npc: input.npc, text: result.dialogue, at: new Date().toISOString(), source }].slice(-40);
+      profile.conversation = [...profile.conversation, { role: 'user', npc: input.npc, text: input.message, requestId, at: new Date().toISOString() }, { role: 'assistant', npc: input.npc, text: result.dialogue, requestId, at: new Date().toISOString(), source }].slice(-40);
       profile.lastDecision = result;
       const metrics = this.data.metrics; metrics.calls++; const countKey = source === 'mubit' ? 'mubitCalls' : source === 'openrouter' ? 'openrouterCalls' : 'fallbackCalls'; metrics[countKey] = (metrics[countKey] ?? 0) + 1; metrics.lastLatencyMs = latencyMs;
       const tokens = Object.fromEntries(tokenKeys.map(key => {

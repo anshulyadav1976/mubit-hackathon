@@ -7,13 +7,12 @@
 | Paper 1.21.11 / Java 21 | Authoritative quest stages, evidence, encounters, damage, moving NPCs, dialogue bubbles, escort and reunion |
 | WorldBuilder | Four authored realms and village; bounded block batches and stage barriers |
 | Fabric 1.21.11 / Java 21 | In-world microphone/HUD, correlated voice turns, unsolicited scene narration and system WAV playback |
-| Node 22 director | Validated story contract, bounded history/preferences, Mubit requests, inexpensive text fallback and honest source metrics |
+| Node 22 director | Validated story contract, bounded history/preferences, Mubit story-text requests, labelled deterministic local fallback and honest source metrics |
 | whisper.cpp / tiny.en | Local mono PCM16 16kHz transcription, up to 15 seconds per turn |
 | OpenRouter speech | Expressive Gemini 3.8 Flash TTS; six distinct character voices and delivery directions |
 | macOS speech | Local fallback synthesis; system afplay follows the selected output device |
-| OpenRouter, optional | One bounded text fallback after Mubit failure; hosted character speech by default |
 
-The plugin/client call the loopback director at `127.0.0.1:8765`. Provider credentials are backend-only. Microphone audio stays local; submitted text/context goes to the chosen text provider. Hosted speech receives NPC reply text; its delivery instructions are separate from the spoken transcript.
+The plugin/client call the loopback director at `127.0.0.1:8765`. Provider credentials are backend-only. Microphone audio stays local; submitted story text/context goes to Mubit. Hosted speech receives NPC reply text; its delivery instructions are separate from the spoken transcript.
 
 ## Story and quest
 
@@ -43,7 +42,7 @@ The director enforces Host, loopback remote address, Origin, body limits, input 
 
 ## Providers, state and evaluation
 
-Mubit remains the primary text provider. After an attempted Mubit failure, one bounded OpenRouter request may run if configured. Missing keys or exhausted shared request budget use local fallback. Replies retain actual provider/model/source and bounded error codes. The stable production prompt identifies a recurring story task; context changes do not establish weight updates.
+All story-text inference goes through Mubit. Missing credentials, an exhausted request budget or a failed/invalid Mubit response produce a labelled deterministic local fallback (`source=fallback`). Story text is never rerouted to OpenRouter. OpenRouter is used only for optional hosted text-to-speech of the already generated NPC reply. Replies retain the actual text source and bounded error codes. The stable production prompt identifies a recurring story task; context changes do not establish weight updates.
 
 A server startup creates a fresh dedicated `everafter_<timestamp>` world. Old world directories are retained. Quest progress lives in memory for that server run; narrative memory/metrics live in ignored director runtime files. `./scripts/restart.sh` verifies service identities, gracefully stops both, archives narrative state, and starts a fresh quest. It preserves earlier worlds and archives. The browser has no reset button.
 

@@ -1,0 +1,57 @@
+{
+  "sourceFiles": {
+    "fixtures/story-v2.mjs": "4228b1a39caecb6bf37c756154a5b6e0ce471d65254949319b7917e3634028e9",
+    "prepare-story-v2.mjs": "4e79850eba1e03e0f1b30ef34368e0b86a8bbe621716d5d2fac214cd10fd49f0"
+  },
+  "dataset": "everafter-story-v2-prepared-2026-10-24",
+  "storyContractVersion": 2,
+  "status": "prepared/locallyvalidated",
+  "submissionAuthorization": "not granted; save now, send only after a future explicit request",
+  "submitted": 0,
+  "kept": null,
+  "targetKept": 50,
+  "candidateTurns": 240,
+  "candidateSessions": 60,
+  "heldoutTurns": 60,
+  "heldoutSessions": 15,
+  "model": "gpt-6-luna",
+  "promptFingerprint": "f1fe357e44de6f68e518734ea0b2e23afca77d7841f04583e3ba9d84e77aa5df",
+  "provenance": {
+    "kind": "authored-synthetic",
+    "authoringMethod": "Separate candidate and held-out dialogue banks combined with authored realm catalogue and hypothetical state snapshots.",
+    "realPlayerData": false,
+    "providerGenerated": false,
+    "observedGameplay": false,
+    "authoredDate": "2026-10-24"
+  },
+  "artifacts": {
+    "candidates.json": {
+      "sha256": "da66582630fb2f8e1d6b59fc4a3ff23fdb2248c191ff125ca8fa113945e3343b",
+      "bytes": 2535692
+    },
+    "heldout.json": {
+      "sha256": "efa4d321737ee18b5fd42a07bf428f44142c96b626e3dc98442a97e7689959a5",
+      "bytes": 634957
+    },
+    "prompt.json": {
+      "sha256": "50da3a00959ae8e498a7fe9fa6ee58ca0d6ae473695b56f5890bdf9fede1204f",
+      "bytes": 3814
+    },
+    "validation.json": {
+      "sha256": "7e94130ab3956d48e9f92fb26d3de86557cd85eee57fb84e5a2e18f6614fde61",
+      "bytes": 5702
+    }
+  },
+  "legacyRecovery": {
+    "untouched": true,
+    "attempts": 96,
+    "limit": 200,
+    "roundsUsed": 1
+  },
+  "futureSubmissionRequirements": [
+    "Separate explicit authorization and a new bounded budget without resetting the legacy ledger.",
+    "One exclusive training lock and persistent reservation before each attempt.",
+    "Exact frozen prompt/model/format; no OpenRouter, blind retry or real-game profile writes.",
+    "Keep held-out sessions out of recorded training traffic; report raw model checks separately from backend guards."
+  ]
+}

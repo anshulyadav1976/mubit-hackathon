@@ -24,7 +24,7 @@ A chapter remains committed after construction begins. For a different realm fro
 
 Every turn uses the same bounded story-director task: NPC, authoritative quest facts, recent conversation, and inferred player preferences produce dialogue and a structured proposal. The server alone controls evidence, damage, doors, boss outcomes, rescue, and reunion.
 
-The response source matters. `mubit` means a real Mubit response. `openrouter` means the inexpensive text fallback answered after a failed Mubit attempt. `fallback` means deterministic local dialogue. None is proof of a trained adapter. The production story-v2 prompt differs from the legacy adapter’s task; legacy evaluation cannot establish v2 quality.
+The story-text response source matters. `mubit` means a real Mubit response. `fallback` means labelled deterministic local dialogue after a missing key, exhausted budget, failed request or invalid response. There is no alternate hosted story-text provider. OpenRouter is used only for hosted TTS: an OpenRouter audio source identifies speech synthesis, not story inference or adapter serving. Neither text source proves a trained adapter. The production story-v2 prompt differs from the legacy adapter’s task; legacy evaluation cannot establish v2 quality.
 
 Show actual request, model, latency and provider evidence if available. Training, deployment, and improvement require independent Mubit evidence; never infer them from a configured key or remembered preferences.
 
