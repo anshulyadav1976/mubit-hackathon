@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Editable editorial evidence frame</title>
+  <desc id="desc">Dark panel and teal rule. No metrics or claims; the composition supplies verified source data.</desc>
+  <rect x="180" y="170" width="1560" height="740" rx="8" fill="#101719" fill-opacity="0.96"/>
+  <path d="M240 244H1680" stroke="#8BC9C0" stroke-width="3"/>
+  <text x="240" y="864" fill="#A7B1AE" font-family="Menlo,monospace" font-size="28">EDITORIAL EVIDENCE</text>
+</svg>

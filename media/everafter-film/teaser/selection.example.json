@@ -1,0 +1,8 @@
+{
+  "clips": {
+    "C01": {"sourceStartSeconds":0},
+    "C03": {"sourceStartSeconds":0,"voiceVerified":false},
+    "C05": {"sourceStartSeconds":0},
+    "C10B": {"sourceStartSeconds":0}
+  }
+}

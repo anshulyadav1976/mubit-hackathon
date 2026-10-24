@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "status": "template_not_evidence",
+  "capturedAt": null,
+  "sessionId": null,
+  "origin": null,
+  "sourceFile": null,
+  "turns": [],
+  "metrics": {
+    "scope": null,
+    "sessionId": null,
+    "mubitResponses": null,
+    "localFallbackResponses": null,
+    "providerErrors": null
+  },
+  "training": {
+    "contract": "story-v2",
+    "status": "offline_preparation_planned",
+    "plannedTrainingTurns": 240,
+    "plannedTrainingSessions": 60,
+    "plannedHoldoutCases": 60,
+    "plannedHoldoutSessions": 15,
+    "preparedTrainingTurns": null,
+    "preparedTrainingSessions": null,
+    "preparedHoldoutCases": null,
+    "preparedHoldoutSessions": null,
+    "submitted": 0,
+    "kept": null,
+    "targetKept": 50,
+    "servingModel": null,
+    "asOf": null,
+    "sourceFile": null
+  }
+}

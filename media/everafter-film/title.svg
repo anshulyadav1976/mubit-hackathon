@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">EVERAFTER — Bring her home. Your way.</title>
+  <desc id="desc">Editable cinematic end card for a Minecraft Java narrative director prototype.</desc>
+  <rect width="1920" height="1080" fill="#101719"/>
+  <path d="M860 330H1060" stroke="#E9AD5A" stroke-width="3"/>
+  <text x="960" y="490" text-anchor="middle" fill="#F0E8D6" font-family="Georgia,serif" font-size="112" font-weight="bold" letter-spacing="9">EVERAFTER</text>
+  <text x="960" y="590" text-anchor="middle" fill="#E9AD5A" font-family="Georgia,serif" font-size="48">Bring her home. Your way.</text>
+  <text x="960" y="698" text-anchor="middle" fill="#F0E8D6" font-family="Arial,sans-serif" font-size="34">A bounded narrative director for RPGs.</text>
+  <text x="960" y="848" text-anchor="middle" fill="#A7B1AE" font-family="Arial,sans-serif" font-size="28">Built for Mubit Night Shift · Minecraft Java prototype</text>
+</svg>

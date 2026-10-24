@@ -1,0 +1,131 @@
+{
+  "clips": {
+    "C01": {
+      "path": "assets/footage/C01.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": false,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C02": {
+      "path": "assets/footage/C02.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C03": {
+      "path": "assets/footage/C03.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C04": {
+      "path": "assets/footage/C04.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C05": {
+      "path": "assets/footage/C05.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C06A": {
+      "path": "assets/footage/C06A.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": false,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C06B": {
+      "path": "assets/footage/C06B.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": false,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C06C": {
+      "path": "assets/footage/C06C.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": false,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C06D": {
+      "path": "assets/footage/C06D.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": false,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C07": {
+      "path": "assets/footage/C07.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null,
+      "continuous": false
+    },
+    "C08A": {
+      "path": "assets/footage/C08A.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C08B": {
+      "path": "assets/footage/C08B.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C10A": {
+      "path": "assets/footage/C10A.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C10B": {
+      "path": "assets/footage/C10B.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    },
+    "C10C": {
+      "path": "assets/footage/C10C.mp4",
+      "sourceStartSeconds": 0,
+      "verified": false,
+      "audio": true,
+      "sessionId": null,
+      "requestId": null
+    }
+  },
+  "music": {
+    "path": "assets/audio/music.wav",
+    "sourceStartSeconds": 0,
+    "volume": 0.12,
+    "licenseVerified": true
+  }
+}

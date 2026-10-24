@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "project": "EVERAFTER",
+  "status": "capture_template_private_manifest_required",
+  "output": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "durationSeconds": 165,
+    "durationFrames": 4950
+  },
+  "pathBase": "media/everafter-film",
+  "evidenceImport": "../../../work/film-data/session-evidence.json",
+  "sourceTimecodeConvention": "HH:MM:SS:FF; source rate must be recorded separately",
+  "assets": [
+    {
+      "id": "C01",
+      "kind": "gameplay",
+      "description": "Recorded village establishing shot",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 8,
+      "sessionId": null,
+      "requestId": null
+    },
+    {
+      "id": "C02",
+      "kind": "gameplay",
+      "description": "Mara close-up with actual in-game dialogue",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 10,
+      "sessionId": null,
+      "requestId": null
+    },
+    {
+      "id": "C03",
+      "kind": "gameplay",
+      "description": "Voice lead/approach and actual structured chapter proposal",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 14,
+      "sessionId": null,
+      "requestId": null,
+      "mustMatchSessionOf": [
+        "C04",
+        "C05"
+      ]
+    },
+    {
+      "id": "C04",
+      "kind": "gameplay",
+      "description": "Same-session correction before commitment",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 14,
+      "sessionId": null,
+      "requestId": null,
+      "mustMatchSessionOf": [
+        "C03",
+        "C05"
+      ]
+    },
+    {
+      "id": "C05",
+      "kind": "gameplay",
+      "description": "Real gate entry and selected chapter",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 14,
+      "sessionId": null,
+      "requestId": null,
+      "mustMatchSessionOf": [
+        "C03",
+        "C04"
+      ]
+    },
+    {
+      "id": "C06A",
+      "kind": "gameplay",
+      "description": "Ember Keep scenery; edited comparison",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 3
+    },
+    {
+      "id": "C06B",
+      "kind": "gameplay",
+      "description": "Sunken Archive scenery; edited comparison",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 3
+    },
+    {
+      "id": "C06C",
+      "kind": "gameplay",
+      "description": "Sky Monastery scenery; edited comparison",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 3
+    },
+    {
+      "id": "C06D",
+      "kind": "gameplay",
+      "description": "Thornwild scenery; edited comparison",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 3
+    },
+    {
+      "id": "C07",
+      "kind": "gameplay",
+      "description": "Labelled continuous real-time replay of a voice choice and validated provisional chapter selection before entry",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 32,
+      "minimumHandleSeconds": 5,
+      "speed": 1,
+      "continuousSourceRequired": true,
+      "sessionId": null,
+      "requestId": null,
+      "evidenceTurnId": null,
+      "sourceFps": null,
+      "sourceInTimecode": null,
+      "sourceOutTimecode": null
+    },
+    {
+      "id": "C08A",
+      "kind": "gameplay",
+      "description": "Authored Sentinel encounter highlight; no captured victory claim",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 5,
+      "sessionId": null
+    },
+    {
+      "id": "C08B",
+      "kind": "gameplay",
+      "description": "Authored Warden encounter highlight; no captured victory claim",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 7,
+      "sessionId": null
+    },
+    {
+      "id": "G01",
+      "kind": "editorial_graphic",
+      "description": "Actual request evidence or labelled historical integration metrics",
+      "sourcePath": "evidence-frame.svg",
+      "status": "frame_ready_data_missing",
+      "targetSeconds": 8,
+      "copySource": "production.md#exact-evidence-cards-s09",
+      "dataSource": null
+    },
+    {
+      "id": "G02",
+      "kind": "editorial_graphic",
+      "description": "Player/model/game responsibilities",
+      "sourcePath": "evidence-frame.svg",
+      "status": "frame_and_copy_ready",
+      "targetSeconds": 7,
+      "copySource": "production.md#exact-evidence-cards-s09"
+    },
+    {
+      "id": "G03",
+      "kind": "editorial_graphic",
+      "description": "Pending v2 adaptation with independently verified dataset status",
+      "sourcePath": "evidence-frame.svg",
+      "status": "frame_ready_data_missing",
+      "targetSeconds": 7,
+      "copySource": "production.md#exact-evidence-cards-s09",
+      "dataSource": null
+    },
+    {
+      "id": "C10A",
+      "kind": "gameplay",
+      "description": "Elin refuge approach before rescue",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 7,
+      "sessionId": null,
+      "mustMatchSessionOf": [
+        "C10B",
+        "C10C"
+      ]
+    },
+    {
+      "id": "C10B",
+      "kind": "gameplay",
+      "description": "Mara and Elin visibly home together after the completed reunion",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 8,
+      "sessionId": null,
+      "mustMatchSessionOf": [
+        "C10A",
+        "C10C"
+      ]
+    },
+    {
+      "id": "C10C",
+      "kind": "gameplay",
+      "description": "Readable page-one close-up of the actual chronicle; same completed quest",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "targetSeconds": 4,
+      "sessionId": null,
+      "mustMatchSessionOf": [
+        "C10A",
+        "C10B"
+      ]
+    },
+    {
+      "id": "G04",
+      "kind": "editorial_graphic",
+      "description": "EVERAFTER end card; editable SVG",
+      "sourcePath": "title.svg",
+      "status": "ready_font_environment_unverified",
+      "targetSeconds": 8
+    },
+    {
+      "id": "A01",
+      "kind": "music",
+      "description": "Uprising by Scott Buckley, credited CC BY 4.0; local music asset required",
+      "sourcePath": null,
+      "status": "needs_licensed_selection",
+      "rights": {
+        "license": null,
+        "sourceUrl": null,
+        "attribution": null,
+        "verifiedAt": null
+      }
+    },
+    {
+      "id": "A02",
+      "kind": "game_audio",
+      "description": "Original game/system audio, including synthetic player prompt through actual microphone/STT; no room microphone in video",
+      "sourcePath": null,
+      "status": "needs_capture",
+      "doNotReplaceProofInput": true
+    },
+    {
+      "id": "A03",
+      "kind": "editorial_narration",
+      "description": "Optional human narration from production script, not NPC speech",
+      "sourcePath": null,
+      "status": "optional_not_recorded"
+    },
+    {
+      "id": "T01",
+      "kind": "captions",
+      "description": "Actual player and NPC speech; generated only from recorded content",
+      "sourcePath": null,
+      "status": "needs_transcription_review"
+    },
+    {
+      "id": "D01",
+      "kind": "evidence",
+      "description": "Sanitized measured session export; no fabricated metrics",
+      "sourcePath": null,
+      "status": "awaiting_root_export",
+      "templatePath": "session-evidence.template.json"
+    }
+  ],
+  "importRecordFields": [
+    "sourcePath",
+    "sourceFps",
+    "sourceDurationSeconds",
+    "sourceInTimecode",
+    "sourceOutTimecode",
+    "sha256",
+    "capturedAt",
+    "sessionId",
+    "requestId",
+    "verifiedBy",
+    "verificationNotes"
+  ],
+  "rules": [
+    "Keep missing source paths null; missing footage is a production dependency, never synthetic gameplay.",
+    "Picture targetSeconds sum to 165; audio/caption/evidence assets are non-additive overlays.",
+    "Use imported source timecodes only after capture; timeline.csv is the record timeline.",
+    "Historical evidence must be labelled historical and never attached to an unrelated fresh turn.",
+    "Local validation is not Mubit kept-example acceptance.",
+    "No paid model requests or training submissions are authorized by this manifest."
+  ]
+}

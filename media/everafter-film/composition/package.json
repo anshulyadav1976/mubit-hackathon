@@ -1,0 +1,16 @@
+{
+  "name": "everafter-film",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:final": "node build.mjs --final",
+    "test": "node --test build.test.mjs",
+    "check": "hyperframes check",
+    "render": "node build.mjs --final && hyperframes render"
+  },
+  "devDependencies": {
+    "hyperframes": "0.8.193",
+    "gsap": "3.14.2"
+  }
+}

@@ -1,0 +1,24 @@
+<template><style>
+@font-face{font-family:FilmSerif;src:url('assets/fonts/EBGaramond-400.woff2')}@font-face{font-family:FilmSerif;src:url('assets/fonts/EBGaramond-700.woff2');font-weight:700}
+@font-face{font-family:FilmMono;src:url('assets/fonts/JetBrainsMono-400.woff2')}@font-face{font-family:FilmSans;src:url('assets/fonts/Inter-400.woff2')}@font-face{font-family:FilmSans;src:url('assets/fonts/Inter-700.woff2');font-weight:700}
+*{box-sizing:border-box;margin:0}#root{position:absolute;inset:0;color:#F0E8D6;font-family:FilmSans;background:#101719;overflow:hidden}
+.clip{position:absolute;inset:0}.footage{width:1920px;height:1080px;object-fit:contain;background:#101719}
+.caption-box{position:absolute;left:200px;right:200px;bottom:130px;background:#101719;padding:24px 32px;font:34px/1.35 FilmSans;text-align:center}
+.lt{position:absolute;left:200px;top:134px;max-width:1500px;padding:20px 30px;background:#101719}.lt-name{font:62px/1.1 FilmSerif}.lt-rule{height:3px;background:#E9AD5A;width:140px;margin:16px 0;transform-origin:0 50%}.lt-role{font:28px/1.35 FilmMono;color:#A7B1AE}
+.missing{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:26px;background:#182226;text-align:center;padding:100px}.missing h2{font:58px FilmSerif}.missing p{font:30px FilmMono;color:#E9AD5A}.missing small{font:28px FilmSans;max-width:1300px}
+.panel{position:absolute;left:200px;top:150px;width:1520px;padding:58px 64px;background:#101719;border-top:3px solid #8BC9C0}.kicker{font:28px FilmMono;color:#8BC9C0;letter-spacing:2px}.panel h2{font:76px/1.1 FilmSerif;margin:28px 0 48px}.rows{display:flex;flex-direction:column;gap:26px;font:35px/1.3 FilmMono}.foot{font:28px/1.4 FilmSans;color:#A7B1AE;margin-top:52px;max-width:1380px}
+.end{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:30px;text-align:center}.end h1{font:700 126px/1 FilmSerif;letter-spacing:9px}.end .tag{font:52px FilmSerif;color:#E9AD5A}.end .product{font:34px FilmSans;margin-top:18px}.end .credit{font:28px FilmSans;color:#A7B1AE;margin-top:68px}
+.trace{position:absolute;right:160px;top:310px;width:570px;padding:24px 26px;background:#101719;border-left:3px solid #8BC9C0;font:26px/1.4 FilmMono;white-space:pre-wrap;overflow-wrap:anywhere}.proof-label{position:absolute;left:192px;top:112px;padding:16px 24px;background:#101719;font:28px FilmMono;color:#8BC9C0}.voice-note{position:absolute;left:192px;top:800px;padding:12px 18px;background:#101719;font:26px/1.4 FilmSans;max-width:760px}.music-credit{font:26px FilmSans;color:#A7B1AE;max-width:1600px}
+</style><div id="root" data-composition-id="C07" data-duration="32" data-width="1920" data-height="1080" data-composition-variables='[{&quot;id&quot;:&quot;footage&quot;,&quot;type&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Footage source&quot;,&quot;default&quot;:&quot;assets/footage/C07.mp4&quot;}]'><video id="C07-video" class="clip footage" src="assets/footage/C07.mp4" data-var-src="footage" data-start="0" data-duration="32" data-media-start="0" data-playback-rate="1" data-track-index="0" data-has-audio="true" data-volume="0.75" playsinline></video><div id="C07-label" class="clip" data-start="0" data-duration="32" data-track-index="2"><div class="proof-label" style="left:112px;width:370px;padding:14px;font-size:23px;line-height:1.4">DECISION REPLAY<br>REAL TIME · BEFORE ENTRY</div><div class="voice-note">Player input: synthetic voice → local STT</div></div><div id="C07-trace" class="clip" data-start="13.333333333" data-duration="8" data-track-index="3"><div class="trace">Validated scene decision
+{
+  &quot;realm&quot;: &quot;ember_keep&quot;,
+  &quot;trial&quot;: &quot;riddle&quot;,
+  &quot;mood&quot;: &quot;eerie&quot;
+}
+mubit · requested gpt-6-luna
+Backend request: 4.154 s
+ID …26d1b7247312
+Provisional chapter selected</div></div></div><script>
+const tl=gsap.timeline({paused:true});
+tl.addLabel('end',32);window.__timelines=window.__timelines||{};window.__timelines['C07']=tl;
+</script></template>
