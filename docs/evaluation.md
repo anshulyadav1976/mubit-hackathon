@@ -9,7 +9,7 @@ node --test director/test/*.test.mjs
 node director/evaluate.mjs
 ```
 
-The latest completed automated validation recorded **21 passing Node tests, 9 passing Java tests and 12 passing Python tests**. These checks are separate from the native Minecraft UI observations below.
+The latest completed automated validation recorded **31 passing Node tests, 9 passing Java tests and 12 passing Python tests**. The Node total includes the recovery coverage, raw-decision, persistent-budget, concurrency and bounded-option regressions. These checks are separate from the native Minecraft UI observations below.
 
 The default evaluator deliberately supplies an empty API key even if your environment has a key. It makes zero gateway requests and writes an `offline-fallback-validation` report under ignored `director/runtime/evaluations/`. It tests local fallback behavior, schema bounds, quest objectives, route locks and correction handling. Offline scores say nothing about Mubit training or model quality. Failed expectations are reported as failures rather than removed.
 
@@ -68,6 +68,8 @@ At **16:43 BST**, the same task visibly changed to **Training / Training v1**, w
 
 The console created adapter `ad_lane_a96a2bdc`, version **v1**, at **16:48:45 BST**, based on `Qwen/Qwen3-4B-Instruct-2507`. The completed run returned **Prompt only / Not ready yet**, not a passing adapter. Its version-specific training-example count was not reported; the task's 38-kept snapshot must not be presented as the exact training split.
 
+A later read-only check confirmed the same result. The evaluation's Why tooltip says its stored provider replies are the answer key. The UI still does not expose the exact failing per-field checks. The visible Training controls offer a new-example threshold, maximum example length and organization training limit; Adapters offers the quality gap and minimum judged-case count. Neither exposes an adapter-foundation selector. Advanced lists `census.bases` as `Qwen/Qwen3-4B-Instruct-2507, Qwen/Qwen3-8B`, but no inspected documentation or visible control establishes this as a supported selector for the adapter's training foundation. Changing the requested provider model would form a different task, not prove that the hosted adapter foundation changed. No base settings or pass gates were altered. See the [first-adapter guide](https://docs.mubit.ai/guides/first-adapter) and [task/model grouping](https://docs.mubit.ai/guides/model-ids). Hosted training uses provider compute; local CUDA availability does not determine the hosted base.
+
 Mubit's test set `gs_r4_ck7ad45aafa4fbda7a` contains 12 required held-out cases. It reported **adapter 0/12, base model plus prompt 0/12, target 95%**, with a separate minimum of **20 judged cases** for going live. Recorded provider answers are marked pass per case; the aggregate provider-model row says not measured, so this is not a fresh three-model benchmark. The release explanation cited the failed verdict, insufficient case count and no improvement over the base. Try it was disabled and no request path pointed to the adapter.
 
 Three displayed failed response pairs were inspected. Both sides returned structured narrative decisions. The third pair agreed on route `combat`, mood `eerie`, difficulty `2` and all three preference flags, while dialogue/objective/reason wording differed. The first two pairs also differed on mood. The UI did not expose the exact per-field grading rubric or input with these replies; this is insufficient to conclude the grader is wrong or that prose comparison caused the failures. The next diagnostic for Mubit is to inspect the failing conformance checks for this test set before choosing targeted training data. No additional calls or settings changes were made in this inspection.
@@ -117,6 +119,31 @@ node --env-file-if-exists=.env director/evaluate.mjs --live --label post-trainin
 ```
 
 The evidence text is an operator-provided reference, not automatic verification. A comparison requires complete live runs with matching model, system prompt, response format and fixtures. It reports observed score/latency deltas. Twenty synthetic examples, changing service conditions, sampling variance, hidden provider routing and a manually observed adapter state cannot establish a causal improvement from training. Preserve unsuccessful runs too.
+
+## Bounded diverse recovery workflow
+
+`director/fixtures/recovery.mjs` contains 96 distinct authored synthetic messages across 24 independent four-turn sessions: 36 village, 24 adventure, 12 rescued and 24 complete examples; Mara, Oren and Elin are represented, with 48 intended mystery and 48 combat decisions. Twelve planning corrections and 60 committed-phase cases cover route locks, progress, rescue/home facts and command/fact boundaries. Offline validation checks every input and fallback output shape; it does not claim those are model observations. Live reports retain raw model replies and check their shape, intended route and villager protection before backend guards can hide a failed route lock. Those checks are narrower than a human review of dialogue or Mubit's undisclosed conformance rubric.
+
+```sh
+node director/train-recovery.mjs
+node director/recovery-status.mjs
+```
+
+Both commands above make zero paid requests. The explicitly authorized initial batch is:
+
+```sh
+node --env-file-if-exists=.env director/train-recovery.mjs --live --count 96
+```
+
+Recovery state is durable under ignored `director/runtime/training-recovery/`: `latest.json` points to the current run and report; `call-ledger.json` counts cumulative recovery attempts, including uncertain transport outcomes; each `recovery-<uuid>/report.json` is checkpointed after every response. The initial live run is `recovery-4273db42-d53a-489f-9dae-1f5d7a29c5d7`. A whole-run exclusive `call-ledger.json.lock` prevents a batch and heartbeat from overlapping. The 200-additional-call cap persists across process restarts, with at most three total recovery rounds including the initial batch. Reservations are written before fetch and never automatically refunded. Corrupt ledgers fail closed; a stale lock must be reviewed, not deleted blindly.
+
+That initial recovery batch completed all 96 requests with 96 Mubit replies and 96 raw shape/route/protection checks passing, across 24 independent sessions. All 96 replies ended with `finish_reason: stop` and had actual middleware IDs and returned token counts. Usage was 120,928 prompt / 26,110 completion / 147,038 total tokens; median latency was 2,586.5 ms and p95 was 4,238 ms. The production model remained `gpt-6-luna` and the local prompt fingerprint remained `6a9d76c14edc86cf8cf94c005ed2c09c08ddb15564433f6d5f691ceb2c3dac21`. This is a broader set of recorded Mubit examples, not an adapter-quality result. Recovery budget now records 96/200 attempts used and round 1/3 completed; 104 attempts and at most two rounds remain, subject to useful feedback.
+
+The console inspection after this batch still showed **Reviewing examples**, **40 kept / 1 rejected / 97 waiting review / 23 couldn't be reviewed**, and **31 sessions with kept examples**. Its Review today row displayed **72 queued / 0 over the limit / 3 running**; other call counters on the same page were inconsistent, so these labels are preserved without deriving a reconciled total. The only adapter version/job still shown was v1 / `ftjob_7b85f04e`. A new training submission had **not** been established. `console-after-batch.json` and `console-after-batch.txt` in the recovery runtime directory preserve this checkpoint for the follow-up. Wait for curation/job progress rather than treating the 96 successful requests as 96 kept examples or repeatedly resending them.
+
+The runner stops on a provider/fallback error or raw decision mismatch. Later attempts require `--feedback <ignored-json-file>` containing a concrete `reason`, actual grading/console `evidence`, and targeted `caseIds`, including each selected session's earlier turns. A subsequent command may use `--count <bounded-number>` but cannot exceed the ledger's remaining allowance or the three-round limit. New input must address useful feedback; do not repeatedly resend the same batch, lower quality gates, switch opaque engine knobs or claim an unverified foundation change. Any separate paid recovery evaluation must use this same budget; do not bypass it with the ordinary evaluator. Console polling is read-only and should alert only on a meaningful state change, a submitted training run, a completed result or a blocker.
+
+The fifteen-minute follow-up should first run the local status command, avoid a live batch while its worker lock exists, then inspect task `ln_f033afe97baac3c175b28c3f` and adapter `ad_lane_a96a2bdc` in the console. Record kept/rejected/queued counts, version and job IDs, actual base, grading reasons, judged-case count and routing. New kept examples are not themselves proof that a new training job was submitted. A passed adapter still needs explicit serving evidence before any after-training comparison is attributed to it.
 
 ## Metric definitions
 
