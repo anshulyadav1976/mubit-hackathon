@@ -20,7 +20,7 @@ Read the [Minecraft EULA](https://aka.ms/MinecraftEULA). If you agree, accept it
 ./scripts/setup.sh --accept-eula
 ```
 
-For the in-game dialogue window, first create or use a Prism instance named **EVERAFTER** running Minecraft **1.21.11**. Close Minecraft before installing the client; the installer preserves its login, options, and worlds:
+For in-world voice conversations, first create or use a Prism instance named **EVERAFTER** running Minecraft **1.21.11**. Close Minecraft before installing the client; the installer preserves its login, options, and worlds:
 
 ```sh
 ./client-mod/build.sh
@@ -33,7 +33,7 @@ Install the local recognition engine with `./scripts/setup-voice.sh` for microph
 ./scripts/start.sh --play
 ```
 
-Join `127.0.0.1:25565` and right-click a villager. Conversation, microphone recording, transcript review, and spoken replies all work inside Minecraft; no browser frontend is needed. The optional [director panel](http://127.0.0.1:8765) remains available for diagnostics. The scripts do not create a Prism instance or bypass Microsoft authentication. Both services bind to loopback; the Minecraft server uses online authentication.
+Join `127.0.0.1:25565` and right-click a villager. Voice conversations and spoken replies stay in the world, with a small HUD instead of a dialogue screen; no browser frontend is needed. The optional [director panel](http://127.0.0.1:8765) remains available for diagnostics. The scripts do not create a Prism instance or bypass Microsoft authentication. Both services bind to loopback; the Minecraft server uses online authentication.
 
 Stop the services with:
 
@@ -53,15 +53,15 @@ Optional local speech recognition uses **whisper.cpp with tiny.en**. The voice s
 ./scripts/setup-voice.sh
 ```
 
-Right-click **Mara**, **Oren**, or **Elin** to open their Minecraft dialogue window. Click **Record voice**, speak, then click **Stop recording**; capture also stops after 15 seconds. Local whisper.cpp fills the editable text field. Review or edit it and click **Send to Mara/Oren/Elin**. The server validates the selected villager, and the reply appears in that same window and plays automatically. Tab selects controls, Enter sends from the text field, Escape closes, and the mouse wheel scrolls long replies. Recording, transcription, and playback run off the render thread.
+Right-click **Mara**, **Oren**, or **Elin** and speak without leaving the world. Right-click again to finish; a turn also stops after 15 seconds. Local whisper.cpp transcribes the recording and sends the text automatically to the selected NPC. A compact HUD shows listening, transcription, and reply status; the reply appears as a subtitle and plays aloud while movement stays available. Holding right-click does not repeatedly start and stop recording. Opening a menu, losing focus, disconnecting, dying, or moving outside conversation reach cancels capture and stale results. Normal Minecraft chat and `/talk <message>` remain available for typed input or correcting a misheard line. Recording, transcription, and playback run off the render thread.
 
-Recognition sends mono PCM WAV only to the local `/api/transcribe` endpoint. It does not send microphone audio to Mubit or OpenRouter. The confirmed text and narrative context go to Mubit when enabled. NPC speech uses the separate `OPENROUTER_API_KEY` and `OPENROUTER_TTS_MODEL` settings in `.env` for hosted voices; the default is `google/gemini-3.8-flash-lite-tts`. Missing credentials, an exhausted voice budget, or a cloud failure falls back to macOS `say`. If audio is unavailable, the reply remains readable and typed input still works. Hosted speech receives NPC reply text. Temporary recognition and local-speech files are removed after processing; submitted dialogue remains in local narrative history until reset or archived.
+Recognition sends mono PCM WAV only to the local `/api/transcribe` endpoint. It does not send microphone audio to Mubit or OpenRouter. The transcribed text and narrative context go to Mubit when enabled; no separate Send action is required in voice mode. NPC speech uses the separate `OPENROUTER_API_KEY` and `OPENROUTER_TTS_MODEL` settings in `.env` for hosted voices; the default is `google/gemini-3.8-flash-lite-tts`. Missing credentials, an exhausted voice budget, or a cloud failure falls back to macOS `say`. If audio is unavailable, the reply remains readable and typed input still works. Hosted speech receives NPC reply text. Temporary recognition and local-speech files are removed after processing; submitted dialogue remains in local narrative history until reset or archived.
 
-Allow microphone access for Minecraft/Java or Prism in macOS System Settings → Privacy & Security → Microphone if requested. A native Minecraft Record → Stop → review → Send smoke check transcribed “I prefer puzzles and a gentle mystery. Please keep the villagers safe.” exactly and received a Mubit reply from Mara. This checks one sentence and the integrated flow; it is not a speech-accuracy benchmark.
+Allow microphone access for Minecraft/Java or Prism in macOS System Settings → Privacy & Security → Microphone if requested. The native in-world smoke check captured speaker audio after right-click, automatically submitted the transcript on the next click, and received a Mubit reply from Mara with HUD subtitles and speech while movement stayed available. A held press followed by Escape cancelled without a dialogue request. This checks the integrated flow, not speech accuracy; tiny.en can mishear words in a noisy room, and chat or `/talk` can correct them.
 
 ## Play
 
-- Right-click **Mara**, **Oren**, or **Elin** to open their dialogue window. Record your voice or type, then Send. Normal Minecraft chat and `/talk <message>` remain available as fallback.
+- Right-click **Mara**, **Oren**, or **Elin** to start listening in the world. Speak and right-click again to finish and send automatically. Normal Minecraft chat and `/talk <message>` remain available as fallback.
 - In the village, describe what you enjoy. For example: “I prefer puzzles, an eerie atmosphere, and protecting villagers.” You can correct this before entering the next area.
 - Walk through the northern crossing or use `/everafter go`. The selected scene is built once, then you are transported there.
 - **Mystery:** follow your compass to three glowing echo-stones and right-click each marker. Then find and right-click Elin.

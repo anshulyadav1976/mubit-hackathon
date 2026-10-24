@@ -6,10 +6,10 @@
 | --- | --- |
 | Paper 1.21.11 / Java 21 plugin | Player controls, protected NPCs, authoritative quest state, compass and bossbar, safe transitions, combat, rescue, and world construction scheduling |
 | `WorldBuilder` | Authored village and two adventure families, deterministic palette/atmosphere changes, bounded batches of at most 1,500 edits per tick |
-| Fabric 1.21.11 client / Java 21 | Native NPC dialogue screen, editable transcript, bounded Java Sound microphone recording, correlated replies, and WAV playback |
+| Fabric 1.21.11 client / Java 21 | In-world NPC voice controller, compact HUD/subtitles, bounded Java Sound microphone recording, correlated replies, and WAV playback |
 | Node 22 local director | Validates messages, stores bounded conversation and preferences, calls Mubit, validates replies, exposes local UI state and an input inbox |
 | Browser director panel, optional | Displays narrative state, response source, preferences and available metrics; retains the legacy input/voice path for diagnostics |
-| Local whisper.cpp / tiny.en | Transcribes short recordings on this computer; supplies editable text without sending audio to Mubit |
+| Local whisper.cpp / tiny.en | Transcribes short recordings on this computer without sending audio to Mubit |
 | Mubit gateway | Provides dialogue and structured scene proposals through its OpenAI-compatible endpoint |
 | OpenRouter speech / macOS `say` | Synthesizes NPC reply text with character-specific voices; hosted speech falls back to local macOS speech |
 
@@ -17,9 +17,9 @@ The plugin and client call only `http://127.0.0.1:8765`. Dialogue and structured
 
 ## Data flow
 
-Right-clicking a protected story NPC opens the Fabric dialogue screen through `everafter:open`. Java Sound captures up to 15 seconds off the render thread, converts supported native microphone formats into mono PCM16 16kHz WAV, and posts to local `/api/transcribe`. whisper.cpp returns an editable transcript; the player reviews and explicitly sends it. `everafter:say` carries the entity ID, bounded message, and request ID. Paper revalidates the selected NPC's persistent identity, world, and six-block reach before calling the existing dialogue method. Normal chat, `/talk`, and optional confirmed browser input converge on that same method.
+Right-clicking a protected story NPC selects a voice conversation through `everafter:open`, without creating a Minecraft screen. The client ties acceptance to a fresh use-key press and the targeted entity so held-button repeats cannot reopen or immediately stop a turn. Java Sound captures up to 15 seconds off the render thread and converts supported native microphone formats into mono PCM16 16kHz WAV. A second distinct use press finishes capture. Local `/api/transcribe` returns text, which is sent automatically through `everafter:say` with the entity ID and request ID. Paper revalidates the selected NPC’s persistent identity, world, and six-block reach before calling the existing dialogue method. Normal chat, `/talk`, and optional confirmed browser input converge on that same method.
 
-`everafter:reply` carries the NPC, request ID, dialogue, source, and authoritative phase. The client rejects stale NPC/request replies, displays the subtitle, and requests a WAV from `/api/speech` for automatic Java Sound playback. Scripted greetings and idle typed-chat replies use an empty request ID. Closing the screen stops capture/playback and discards late results. HTTP, recording, and playback run on background workers; UI changes return to the client thread. No browser is required.
+`everafter:reply` carries the NPC, request ID, dialogue, source, and authoritative phase. The client rejects stale NPC/request replies, displays the subtitle on a compact HUD, and requests a WAV from `/api/speech` for Java Sound playback. Initial empty-ID scripted greetings are suppressed while listening. Recording, HTTP, and playback run on background workers; state changes return to the client thread. Opening a screen, losing focus, disconnecting, death, leaving reach, or switching NPCs cancels capture/playback and invalidates late work. No browser or secondary dialogue screen is required.
 
 Temporary recognition audio/transcript and local-speech files are cleaned up after processing. Microphone audio stays on this computer. Submitted text and narrative context continue to Mubit; NPC reply text goes to OpenRouter only when hosted speech is configured and available. Cloud speech has a persisted bounded attempt budget and a small memory cache; unavailable hosted speech uses local macOS voices. If playback fails, the subtitle remains. A dialogue request contains the player's identifier, selected NPC, phase, bounded message, and authoritative world facts. The director adds the stored preference profile and recent conversation to a stable system prompt.
 
@@ -49,7 +49,7 @@ The director persists bounded profiles, recent conversation, preference correcti
 
 Both services listen on loopback. The director checks Host, remote address, browser Origin, request sizes, input constraints, and static-file paths. The Minecraft server uses online authentication. This is a local single-adventurer prototype, not a publicly hardened multiplayer service.
 
-The backend writes a fresh 64-hex local capability to `director/runtime/client-token` at startup; Paper rereads it for each NPC open and sends it only as `backendToken`, never a provider key. The client sends `X-Everafter-Token` on both voice requests. `/api/speech` requires that capability. `/api/transcribe` retains loopback, Host and Origin protection for the legacy browser flow and does not currently require the capability. The client accepts dialogue packets only from loopback Minecraft port 25565 and checks the player ID before opening a screen.
+The backend writes a fresh 64-hex local capability to `director/runtime/client-token` at startup; Paper rereads it for each NPC open and sends it only as `backendToken`, never a provider key. The client sends `X-Everafter-Token` on both voice requests. `/api/speech` requires that capability. `/api/transcribe` retains loopback, Host and Origin protection for the legacy browser flow and does not currently require the capability. The client accepts dialogue packets only from loopback Minecraft port 25565 and checks the player ID before accepting a voice conversation.
 
 ## Mubit evidence
 

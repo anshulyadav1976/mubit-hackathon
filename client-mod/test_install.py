@@ -14,6 +14,18 @@ spec.loader.exec_module(installer)
 
 
 class InstallTest(unittest.TestCase):
+    def test_entrypoint_is_outside_the_mixin_owned_package(self):
+        module = Path(__file__).resolve().parent
+        resources = module / "src/main/resources"
+        mod = json.loads((resources / "fabric.mod.json").read_text())
+        for config in mod["mixins"]:
+            mixin = json.loads((resources / config).read_text())
+            for entries in mod["entrypoints"].values():
+                for entrypoint in entries:
+                    self.assertFalse(entrypoint.startswith(mixin["package"] + "."), "Fabric cannot load normal classes inside a mixin-owned package")
+            for name in mixin["client"]:
+                self.assertTrue((module / "src/main/java" / Path(mixin["package"].replace(".", "/")) / (name + ".java")).is_file())
+
     def test_preserves_login_options_worlds_and_unrelated_mods(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); module = root / "client"; instance = root / "EVERAFTER"

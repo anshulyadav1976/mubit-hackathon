@@ -71,4 +71,4 @@ if [ "$ACTUAL_SHA1" != "$MODEL_SHA1" ]; then
 fi
 test -x "$WHISPER/build/bin/whisper-cli"
 echo 'Local English voice is ready: pinned whisper.cpp + verified tiny.en model.'
-echo 'Open the director panel and allow microphone access. No ffmpeg or voice API key is needed.'
+echo 'Launch Minecraft and right-click an EVERAFTER NPC to speak. No ffmpeg or voice API key is needed.'
