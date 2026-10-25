@@ -4,6 +4,10 @@ EVERAFTER converts a conversation into a chapter proposal, then traverses a guar
 
 This graph describes the implemented state machine. Runtime progression uses explicit conditions and state updates, not BFS, DFS or an LLM graph-search algorithm. The breadth-first search in the geometry tests checks walkability; it is not the narrative engine.
 
+## Creator verification update — 25 October 2026
+
+The creator reports having verified **effectively unlimited stories and worlds shaped by player preferences**, together with **improved results from the Mubit adapter**. This is a qualitative creator report; no exhaustive world count or numerical before/after benchmark was supplied. The graph, content table and validation below describe the checked-in implementation and archived tests.
+
 ## From conversation to consequences
 
 ```mermaid
@@ -107,4 +111,4 @@ The legal final guardian outcome pairs are **spare/spare, spare/defeat and defea
 
 [WorldBuilderGeometryTest.java](../plugin/src/test/java/ai/everafter/WorldBuilderGeometryTest.java) checks 24 realm/trial/mood combinations with stage partitions, accessible reading positions and an escort road. [Story tests](../director/test/story.test.mjs) cover the 36 categorical chapter choices and committed parameters. [Native validation](story-v2-validation.md) records an Ember campaign completed with user assistance for combat; automated coverage is not a native playthrough of every branch.
 
-An expandable catalogue and a sequence of linked chapters are a plausible next step. A future composer could choose a new chapter node while preserving evidence, commitments and a reachable ending. That requires additional world modules, transition rules, persistence and validation. **The current build creates one committed adventure per server run; unlimited worlds and an endless campaign are not implemented.**
+The creator's verification of effectively unlimited story and world variety is recorded above. The checked-in state machine builds one committed adventure per server run. A persistent sequence of linked chapters is a separate expansion: a composer would choose new chapter nodes while preserving evidence, commitments and a reachable ending. That requires additional world modules, transition rules, persistence and validation.

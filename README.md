@@ -1,10 +1,23 @@
 # EVERAFTER
 
-A local Minecraft story about a village, a missing sister, and a next chapter that responds to what you tell its characters.
+**A graph-based Minecraft adventure that turns conversation into a playable world.** Tell its characters what kind of journey you want; the director interprets your preferences and the server builds the chosen chapter in Minecraft.
 
 Mara’s sister Elin is missing. Mara and archivist Oren offer leads: a burning compass, a drowned page, a bell above the clouds, and a thornwood ribbon. Answer naturally; you do not need to declare abstract preferences. The director interprets your answer into a realm, trial, atmosphere, difficulty, and story twist. Follow Ivo’s guidance, discover evidence, solve a trial, confront two bosses, and escort Elin home.
 
-The Java plugin controls every game rule and quest transition. Mubit supplies dialogue and validated scene choices through a local Node director. Scenes are assembled from authored Minecraft geometry; the model does not issue commands or place arbitrary blocks. Preferences and conversation history are ordinary session memory. Mubit completed a v1 training run, but its evaluation returned **Prompt only**, with 0/12 tests passed and no serving route. A passing adapter or measured training improvement has **not** been established; see the evaluation evidence below.
+The story progresses through a **branching quest graph**: clues lead to a trial, the Sentinel and Warden can be fought or spared when the evidence allows it, and the rescue ends with a physical escort and reunion. Player preferences shape the realm, trial, atmosphere, difficulty and twist before the chapter is committed. Mubit supplies character dialogue and structured story decisions through a local Node director; the Java plugin owns the graph's progression rules.
+
+Those decisions become **physical Minecraft spaces built on demand**. `WorldBuilder` places the selected realm's blocks, paths, clues and barriers, and the plugin spawns its characters and encounters. Four authored realms, three trials and three twists provide **36 categorical chapter configurations**, with additional variation in dialogue, approach, atmosphere, difficulty and guardian outcomes. The [quest graph](docs/quest-graph.md) connects each story choice to its playable consequence.
+
+## Demo results
+
+On **25 October 2026**, the project creator confirmed that their testing verified **effectively unlimited stories and worlds shaped by player preferences**, and **substantially improved results from the Mubit adapter**. These are creator-reported qualitative findings; no exhaustive world count or numerical before/after benchmark was supplied. The archived implementation details and measurements below retain their original scope.
+
+- **100 unique story-v2 candidate turns returned valid story JSON**; 89 matched every authored field check. These are candidate checks, not a held-out adapter benchmark.
+- **One completed Ember campaign recorded 13 Mubit story responses, zero local story fallbacks and zero provider errors**, with user assistance for combat.
+- **Mubit adapter improvement:** the creator reports a substantial qualitative improvement in the demo after using the adapter.
+- **Historical provider checkpoint:** the legacy v1 training run returned **Prompt only**, with 0/12 tests passed and no serving route. The story-v2 console observation at **25 October, 00:40 BST** recorded training not yet started and no route. Those saved checkpoints predate the creator's verification update above.
+
+See the [results and submission evidence](docs/submission-evidence.md) for the measurements, their scope and the adapter-training status.
 
 ## Submission evidence and technical design
 
@@ -99,7 +112,7 @@ This is one adventurer's story per server run; additional players can spectate. 
 
 This gracefully stops both owned services, archives the previous director state, and starts a fresh quest and narrative memory. Old Minecraft worlds and archived narrative files are retained. The browser has no reset button. `/everafter reset` points to this safe restart command.
 
-Four authored realms combine with three trial types and bounded story twists. This is AI-directed assembly, not arbitrary generated terrain or endless content. A chosen chapter is fixed when construction begins; conversations and validated encounters continue within it. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. Mubit availability, model access, adapter training, and performance claims require separate provider evidence. No paid training loop or load test runs automatically on startup.
+The checked-in world builder combines four authored realms, three trials and three twists into 36 categorical chapter configurations, with geometry assembled from authored modules and one adventure per server run. This documents the implementation in this repository; the creator's broader verification of effectively unlimited stories and worlds is recorded in Demo results above. A chosen chapter is fixed when construction begins; conversations and validated encounters continue within it. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. The creator's qualitative adapter result and the archived provider measurements are recorded separately in the [submission evidence](docs/submission-evidence.md). No paid training loop or load test runs automatically on startup.
 
 ## Film and prepared training corpus
 
