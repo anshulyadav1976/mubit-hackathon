@@ -105,6 +105,19 @@ test('fallback acknowledgement preserves the offered realm, trial, twist and cus
   assert.equal(corrected.chapter.realm,'sunken_archive'); assert.equal(corrected.chapter.trial,'gauntlet'); assert.equal(corrected.chapter.twist,'willing_guardian');
 });
 
+test('fallback acknowledgement preserves atmosphere and difficulty until explicitly revised',async()=>{
+  const director=local();
+  const proposed=await director.direct(input('I want a spooky hard puzzle in the Thornwild.'));
+  assert.equal(proposed.mood,'eerie'); assert.equal(proposed.difficulty,3);
+  const acknowledged=await director.direct(input('Yes, keep that lead.'));
+  assert.equal(acknowledged.mood,'eerie'); assert.equal(acknowledged.difficulty,3);
+  assert.deepEqual(acknowledged.chapter,proposed.chapter);
+  const easier=await director.direct(input('Actually, make it easy.'));
+  assert.equal(easier.mood,'eerie'); assert.equal(easier.difficulty,1);
+  const revised=await director.direct(input('I prefer wonder and normal difficulty.'));
+  assert.equal(revised.mood,'wonder'); assert.equal(revised.difficulty,2);
+});
+
 test('fallback does not impersonate Ivo when Mara or Oren is asked for arrival guidance',async()=>{
   const director=local(); await director.gameState({...input(),phase:'adventure',route:'mystery',questStage:'arrival'});
   for(const npc of ['Mara','Oren']) {

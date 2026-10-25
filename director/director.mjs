@@ -91,8 +91,8 @@ export function fallback(input, profile, cause) {
     }
   }
   return { dialogue: storyDialogue(input, profile, chapter, facts), route, chapter, intent, answer,
-    mood: /\b(?:eerie|spooky|dark|haunt\w*)\b/i.test(input.message) ? 'eerie' : 'wonder',
-    difficulty: /\b(?:hard|harder|challenge)\b/i.test(input.message) ? 3 : /\b(?:easy|easier|gentle)\b/i.test(input.message) ? 1 : 2,
+    mood: /\b(?:eerie|spooky|dark|haunt\w*)\b/i.test(input.message) ? 'eerie' : /\bwonder\b/i.test(input.message) ? 'wonder' : profile.lastDecision?.mood ?? 'wonder',
+    difficulty: /\b(?:hard|harder|challenge)\b/i.test(input.message) ? 3 : /\b(?:easy|easier|gentle)\b/i.test(input.message) ? 1 : /\b(?:normal|medium)\b/i.test(input.message) ? 2 : profile.lastDecision?.difficulty ?? 2,
     objective: objectiveFor(input.phase, facts, profile.game), preferences: { ...profile.preferences },
     reason: `Local fallback: ${cause}. Authored chapter and proposed actions remain subject to game validation.` };
 }
