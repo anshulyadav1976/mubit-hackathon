@@ -28,13 +28,18 @@ The model proposes. **The server validates.** No generated sentence can award pr
 
 <table>
 <tr>
-<td><img src="docs/assets/screenshot-village.png" alt="Village conversation with Mara"/></td>
-<td><img src="docs/assets/screenshot-realm.png" alt="Assembled chapter realm"/></td>
-<td><img src="docs/assets/screenshot-reunion.png" alt="Escort and reunion"/></td>
+<td width="33%"><a href="docs/assets/screenshot-village.png"><img src="docs/assets/screenshot-village.png" alt="Mara discusses the drowned-page lead and a riddle route in the village"/></a></td>
+<td width="33%"><a href="docs/assets/screenshot-realm.png"><img src="docs/assets/screenshot-realm.png" alt="Ivo greets the player in front of the Sunken Archive trial"/></a></td>
+<td width="33%"><a href="docs/assets/screenshot-reunion.png"><img src="docs/assets/screenshot-reunion.png" alt="Mara and Elin stand together beneath the completed reunion objective"/></a></td>
+</tr>
+<tr>
+<td align="center"><strong>Choose a lead with Mara</strong></td>
+<td align="center"><strong>Enter the Sunken Archive</strong></td>
+<td align="center"><strong>Bring Elin home</strong></td>
 </tr>
 </table>
 
-<!-- SCREENSHOTS: replace docs/assets/screenshot-*.png with real game captures (same filenames, 1280x720). -->
+Stills from recorded gameplay. Click an image to view it at full size.
 
 ## How it works
 
