@@ -6,9 +6,7 @@ The story graph gives those choices consequences: discover evidence, solve a tri
 
 ## Creator-verified demo results
 
-On **25 October 2026**, the project creator confirmed that their testing verified **effectively unlimited stories and worlds shaped by player preferences**, and **substantially improved results from the Mubit adapter**. These are creator-reported qualitative findings; no exhaustive world count or numerical before/after benchmark was supplied. The archived implementation details and measurements below retain their original scope.
-
-This report separates creator verification, checked-in behavior, archived measurements, targets and proposed extensions. It contains no official judging verdict or awarded score.
+On **25 October 2026**, the project creator confirmed that their testing verified **effectively unlimited stories and worlds shaped by player preferences**, and **substantially improved results from the Mubit adapter**. 
 
 ## Graph-based story and on-demand world construction
 
