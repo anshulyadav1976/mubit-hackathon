@@ -6,6 +6,13 @@ Mara’s sister Elin is missing. Mara and archivist Oren offer leads: a burning 
 
 The Java plugin controls every game rule and quest transition. Mubit supplies dialogue and validated scene choices through a local Node director. Scenes are assembled from authored Minecraft geometry; the model does not issue commands or place arbitrary blocks. Preferences and conversation history are ordinary session memory. Mubit completed a v1 training run, but its evaluation returned **Prompt only**, with 0/12 tests passed and no serving route. A passing adapter or measured training improvement has **not** been established; see the evaluation evidence below.
 
+## Submission evidence and technical design
+
+- [Implementation, measured results, event criteria and product potential](docs/submission-evidence.md)
+- [Playable quest graph: branching choices, progression guards and content bounds](docs/quest-graph.md)
+- [Mubit candidate submissions and dated training status](docs/story-v2-submission.md)
+- [Native gameplay, voice and automated validation](docs/story-v2-validation.md)
+
 ## Run locally
 
 Requires Python 3, Node 22 or newer, Prism Launcher, and a licensed Minecraft Java account. Automatic runtime setup supports macOS and Linux on ARM64 or x64 and installs checksum-verified Java 21, Maven 3.9.16, and Paper 1.21.11 build 132 into this project.

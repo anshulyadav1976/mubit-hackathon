@@ -1,6 +1,8 @@
 # EVERAFTER: the demo argument
 
-**A game director that learns what kind of adventure a player wants, then turns the conversation into playable consequences.** Minecraft is the test environment; the reusable product is the bounded narrative director for RPG developers.
+**A game director that interprets what kind of adventure a player wants, remembers the conversation and turns it into playable consequences.** Minecraft is the test environment; the reusable product is the bounded narrative director for RPG developers. Current preference memory is application context; trained-model learning needs separate provider evidence.
+
+The [submission report](submission-evidence.md) separates observed results, project targets and potential benefits. The [quest graph](quest-graph.md) shows the implemented branches and server-owned rules. No official judge scores have been recorded in this repository.
 
 The concrete recurring task is: given a character, authoritative quest facts, recent conversation and player preferences, produce one consistent reply and a safe next-chapter decision. Players can correct the director before committing a chapter. The next area, challenge and atmosphere reflect that decision; the rescue changes the village.
 

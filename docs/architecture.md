@@ -16,6 +16,8 @@ The plugin/client call the loopback director at `127.0.0.1:8765`. Provider crede
 
 ## Story and quest
 
+The [playable quest graph](quest-graph.md) maps the actual branches and evidence guards from the missing-sister introduction to the reunion. Runtime progression is an explicit server-owned state machine; geometry tests use graph reachability separately.
+
 The [story-v2 contract](story-v2-contract.md) defines six NPC identities; mystery/combat/hybrid approaches; four realms; riddle/gauntlet/parley trials; three bounded twists; and proposed answer/challenge/bargain intents. The LLM interprets conversational choices and offers dialogue/hints. It never executes commands or directly awards quest progress.
 
 | Stage | Server-validated progress |
