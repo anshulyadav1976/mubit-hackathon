@@ -1,123 +1,152 @@
-# EVERAFTER
+<div align="center">
 
-**A graph-based Minecraft adventure that turns conversation into a playable world.** Tell its characters what kind of journey you want; the director interprets your preferences and the server builds the chosen chapter in Minecraft.
+<img src="media/everafter-film/title.svg" alt="EVERAFTER — Bring her home. Your way." width="720"/>
 
-Mara’s sister Elin is missing. Mara and archivist Oren offer leads: a burning compass, a drowned page, a bell above the clouds, and a thornwood ribbon. Answer naturally; you do not need to declare abstract preferences. The director interprets your answer into a realm, trial, atmosphere, difficulty, and story twist. Follow Ivo’s guidance, discover evidence, solve a trial, confront two bosses, and escort Elin home.
+### A graph-based Minecraft adventure that turns conversation into a playable world
 
-The story progresses through a **branching quest graph**: clues lead to a trial, the Sentinel and Warden can be fought or spared when the evidence allows it, and the rescue ends with a physical escort and reunion. Player preferences shape the realm, trial, atmosphere, difficulty and twist before the chapter is committed. Mubit supplies character dialogue and structured story decisions through a local Node director; the Java plugin owns the graph's progression rules.
+Tell the characters what kind of journey you want — the director interprets your words,
+and the server builds the chapter you chose, block by block.
 
-Those decisions become **physical Minecraft spaces built on demand**. `WorldBuilder` places the selected realm's blocks, paths, clues and barriers, and the plugin spawns its characters and encounters. Four authored realms, three trials and three twists provide **36 categorical chapter configurations**, with additional variation in dialogue, approach, atmosphere, difficulty and guardian outcomes. The [quest graph](docs/quest-graph.md) connects each story choice to its playable consequence.
+[![check](https://github.com/anshulyadav1976/mubit-hackathon/actions/workflows/check.yml/badge.svg)](https://github.com/anshulyadav1976/mubit-hackathon/actions/workflows/check.yml)
+![Java 21](https://img.shields.io/badge/Java-21-ED8B00)
+![Node 22](https://img.shields.io/badge/Node-22-339933)
+![Paper 1.21.11](https://img.shields.io/badge/Paper-1.21.11-3578E5)
+![Mubit](https://img.shields.io/badge/Story--Mubit-E9AD5A)
+![Voice — whisper.cpp](https://img.shields.io/badge/Voice-whisper.cpp%20local-8BC9C0)
 
-## Demo results
+**Built for Mubit Night Shift** · [Demo guide](docs/demo.md) · [Quest graph](docs/quest-graph.md) · [Submission evidence](docs/submission-evidence.md)
 
-On **25 October 2026**, the project creator confirmed that their testing verified **effectively unlimited stories and worlds shaped by player preferences**, and **substantially improved results from the Mubit adapter**. These are creator-reported qualitative findings; no exhaustive world count or numerical before/after benchmark was supplied. The archived implementation details and measurements below retain their original scope.
+</div>
 
-- **100 unique story-v2 candidate turns returned valid story JSON**; 89 matched every authored field check. These are candidate checks, not a held-out adapter benchmark.
-- **One completed Ember campaign recorded 13 Mubit story responses, zero local story fallbacks and zero provider errors**, with user assistance for combat.
-- **Mubit adapter improvement:** the creator reports a substantial qualitative improvement in the demo after using the adapter.
-- **Historical provider checkpoint:** the legacy v1 training run returned **Prompt only**, with 0/12 tests passed and no serving route. The story-v2 console observation at **25 October, 00:40 BST** recorded training not yet started and no route. Those saved checkpoints predate the creator's verification update above.
+---
 
-See the [results and submission evidence](docs/submission-evidence.md) for the measurements, their scope and the adapter-training status.
+Mara's sister **Elin is missing**. In the village, Mara and the archivist Oren offer four leads: a burning compass, a drowned page, a bell above the clouds, a thornwood ribbon. Answer in your own words — by voice or chat — and a Mubit-backed director interprets your answer into a realm, a trial, an atmosphere, a difficulty and a twist. Then the Paper server physically builds that chapter in a fresh world: terrain, paths, clues, barriers, bosses. Fight or bargain past the Sentinel and the Warden, escort Elin home, and the ending chronicle records only the choices you actually made.
 
-## Submission evidence and technical design
+The model proposes. **The server validates.** No generated sentence can award progress it didn't earn.
 
-- [Technical and results report: routing, story graph, recorded measurements and criteria](docs/technical-results-report.md)
-- [Implementation, measured results, event criteria and product potential](docs/submission-evidence.md)
-- [Playable quest graph: branching choices, progression guards and content bounds](docs/quest-graph.md)
-- [Mubit candidate submissions and dated training status](docs/story-v2-submission.md)
-- [Native gameplay, voice and automated validation](docs/story-v2-validation.md)
-- [Informal feedback from the Mubit team](docs/demo-feedback.md)
+## See it
 
-## Run locally
+<table>
+<tr>
+<td><img src="docs/assets/screenshot-village.png" alt="Village conversation with Mara"/></td>
+<td><img src="docs/assets/screenshot-realm.png" alt="Assembled chapter realm"/></td>
+<td><img src="docs/assets/screenshot-reunion.png" alt="Escort and reunion"/></td>
+</tr>
+</table>
 
-Requires Python 3, Node 22 or newer, Prism Launcher, and a licensed Minecraft Java account. Automatic runtime setup supports macOS and Linux on ARM64 or x64 and installs checksum-verified Java 21, Maven 3.9.16, and Paper 1.21.11 build 132 into this project.
+<!-- SCREENSHOTS: replace docs/assets/screenshot-*.png with real game captures (same filenames, 1280x720). -->
 
-```sh
-./scripts/setup.sh
+## How it works
+
+```mermaid
+flowchart LR
+    A["Speak to a villager<br/>(voice or chat)"] --> B["whisper.cpp<br/>local transcription"]
+    B --> C["Node 22 director<br/>bounded story contract"]
+    C --> D["Mubit gateway<br/>gpt-6-luna"]
+    D --> E["Validated decision:<br/>realm · trial · twist · route"]
+    E --> F["WorldBuilder<br/>authored geometry"]
+    F --> G["Playable chapter:<br/>clue → trial → bosses → escort → reunion"]
 ```
 
-Read the [Minecraft EULA](https://aka.ms/MinecraftEULA). If you agree, accept it explicitly before starting:
+Four authored realms × three trials × three twists = **36 chapter configurations**, each assembled live from authored geometry — plus variation in approach, atmosphere, difficulty, dialogue and guardian outcomes.
 
-```sh
-./scripts/setup.sh --accept-eula
+```mermaid
+flowchart TD
+    M["Elin is missing"] --> V["Choose a lead<br/>in the village"]
+    V --> T["Trial: riddle · gauntlet · parley"]
+    T --> S["Sentinel<br/>fight or bargain"]
+    S --> W["Warden<br/>fight or bargain"]
+    W --> R["Rescue Elin"]
+    R --> H["Escort her home → reunion"]
+    H -.->|chronicle of actual choices| M2(["Story complete"])
 ```
 
-For in-world voice conversations, first create or use a Prism instance named **EVERAFTER** running Minecraft **1.21.11**. Close Minecraft before installing the client; the installer preserves its login, options, and worlds:
+Every edge in the graph is guarded by real evidence: a discovered clue, a trial artifact, an actual boss outcome. Mercy shown to the Sentinel changes what the Warden accepts.
+
+## Features
+
+| | |
+| --- | --- |
+| **Voice-native play** | Right-click a character and speak. Local whisper.cpp transcribes; nothing leaves the box but text. HUD + subtitles, no dialogue screen. |
+| **Mubit story direction** | One recurring structured contract across all six NPCs; labelled deterministic fallback when the gateway can't answer. |
+| **36 chapter configurations** | Ember Keep · Sunken Archive · Sky Monastery · Thornwild, each with realm-specific riddle, combat wave or parley, and three twists. |
+| **Server-owned truth** | Stage, evidence, damage, boss outcomes and the escort are validated by the Paper plugin — never by the model's claim. |
+| **Six expressive voices** | Hosted Gemini TTS via OpenRouter (separate from story text) with per-character delivery directions; macOS local fallback. |
+| **Bounded + auditable** | Request ledger, lock, frozen contract, no blind retries. Director binds loopback only; keys stay server-side. |
+
+## Quick start
+
+Requires **Python 3**, **Node 22+**, **Prism Launcher** and a licensed Minecraft Java account. Setup installs checksum-verified Java 21, Maven 3.9.16 and Paper 1.21.11 build 132.
 
 ```sh
+./scripts/setup.sh --accept-eula   # after reading https://aka.ms/MinecraftEULA
 ./client-mod/build.sh
 python3 client-mod/install-prism.py --minecraft-closed
-```
-
-Install the local recognition engine with `./scripts/setup-voice.sh` for microphone input on macOS; its prerequisites are described below. Start both local services and launch the existing Prism instance:
-
-```sh
+./scripts/setup-voice.sh           # optional, macOS — local whisper.cpp
 ./scripts/start.sh --play
 ```
 
-Join `127.0.0.1:25565` and right-click a villager. Voice conversations and spoken replies stay in the world, with a small HUD instead of a dialogue screen; no browser frontend is needed. The optional [director panel](http://127.0.0.1:8765) remains available for diagnostics. The scripts do not create a Prism instance or bypass Microsoft authentication. Both services bind to loopback; the Minecraft server uses online authentication.
+Join `127.0.0.1:25565`, walk up to Mara, right-click and speak. `/everafter status` always names the next action.
 
-Stop the services with:
+Set `MUBIT_API_KEY` in the ignored root `.env` (see [`.env.example`](.env.example)). Without it, labelled deterministic local dialogue keeps the game playable — never silently, always marked `fallback`.
 
-```sh
-./scripts/stop.sh
-```
+## Recorded results
 
-Set `MUBIT_API_KEY` in the ignored root `.env` file or process environment to enable Mubit. The start script loads `.env` only into the local director process. Keep it out of source control. `MUBIT_MODEL` chooses the model requested through the Mubit gateway; the current default is `gpt-6-luna`. All hosted story-text requests go through Mubit. Missing credentials, a failed/invalid response or an exhausted request budget produce labelled deterministic local dialogue. OpenRouter supplies optional hosted speech, not an alternate story-text provider. A `mubit` response label establishes the gateway source, not independently verified adapter serving.
+| Observation | Result | Scope |
+| --- | --- | --- |
+| Story-v2 candidate batch | **100/100 valid story JSON** | Candidate checks, not a held-out benchmark |
+| Authored field checks | **89/100** | Synthetic candidates, differences retained |
+| Completed Ember campaign | **13 Mubit replies · 0 fallbacks · 0 errors** | One integration session |
+| Automated suites | **129 checks passing in CI** | Director 71 · plugin 28 · film 10 · lifecycle 15 · installer 3 · deck 2 |
 
-Copy [`.env.example`](.env.example) to `.env` for the supported defaults; its API-key placeholder is empty. Restart the director after changing configuration. Configuring a key alone does not run training or evaluation.
+The creator additionally reports qualitative verification of effectively unlimited story/world variety and improved adapter results; those claims and their exact scope are recorded in the [submission evidence](docs/submission-evidence.md), which deliberately separates measurements, dated checkpoints, targets and creator-reported findings.
 
-## Voice
+## Documentation
 
-Optional local speech recognition uses **whisper.cpp with tiny.en**. The voice setup script targets macOS and requires Python 3 with pip, Git, curl, and Apple command line tools (`xcode-select --install` if missing). It builds the pinned engine and verifies the model download; no voice API key or ffmpeg is needed. Install its separate runtime and model with:
-
-```sh
-./scripts/setup-voice.sh
-```
-
-Right-click **Mara**, **Oren**, **Ivo**, **Sentinel**, **Warden**, or **Elin** and speak without leaving the world. Right-click again to finish; a turn also stops after 15 seconds. Local whisper.cpp transcribes the recording and sends the text automatically to the selected NPC. A compact HUD shows listening, transcription, and reply status; the reply appears as a subtitle and plays aloud while movement stays available. Holding right-click does not repeatedly start and stop recording. Opening a menu, losing focus, disconnecting, dying, or moving outside conversation reach cancels capture and stale results. Normal Minecraft chat and `/talk <message>` remain available for typed input or correcting a misheard line. Recording, transcription, and playback run off the render thread.
-
-Recognition sends mono PCM WAV only to the local `/api/transcribe` endpoint. It does not send microphone audio to Mubit or OpenRouter. Transcribed text and narrative context go to the configured text provider. NPC speech defaults to OpenRouter `google/gemini-3.8-flash-tts`, with a distinct prebuilt voice and emotional delivery instructions for each character. macOS playback uses `/usr/bin/afplay` on the current system output device. Missing credentials or a hosted failure falls back to local speech; set `EVERAFTER_TTS_PROVIDER=macos` to use local synthesis explicitly. Hosted speech receives NPC reply text. Temporary audio files are removed after processing; submitted dialogue remains in ignored local narrative history until archived.
-
-Nearby scripted guidance and typed replies also use the in-world speech channel. Text bubbles follow characters above their heads. NPC narration cannot interrupt a recording or pending turn; right-clicking interrupts narration to start listening. Subtitles remain if output fails.
-Allow microphone access for Minecraft/Java or Prism in macOS System Settings → Privacy & Security → Microphone if requested. The native in-world smoke check captured speaker audio after right-click, automatically submitted the transcript on the next click, and received a Mubit reply from Mara with HUD subtitles and speech while movement stayed available. A held press followed by Escape cancelled without a dialogue request. This checks the integrated flow, not speech accuracy; tiny.en can mishear words in a noisy room, and chat or `/talk` can correct them.
-
-## Play
-
-1. Approach Mara and hear her opening clue. Right-click to record, speak, then right-click again to send. Normal chat and `/talk <message>` work too.
-2. Ask about a lead in ordinary language: “The burning compass sounds dangerous. What if we find out why they’re guarding her?” You can revise the plan before crossing.
-3. Enter the northern gate or use `/everafter go`. The server assembles the selected **Ember Keep**, **Sunken Archive**, **Sky Monastery**, or **Thornwild** from authored geometry. Ember Keep is Nether-themed scenery in the quest world.
-4. Meet Ivo, discover the marked evidence, and complete the selected trial: answer a realm-specific riddle, defeat a guard wave, or make an evidence-based appeal. Ask for hints if stuck.
-5. Confront the **Sentinel**, then the **Warden**. Fight real boss entities or earn a validated bargain using the clue, artifact, and your earlier choices. Dialogue alone cannot grant a victory.
-6. Reach Elin. She follows you toward the return gate. Bring her home to Mara for the reunion, celebration, and a chronicle of the choices actually made.
-
-`/everafter help` explains controls; `/everafter status` gives the exact next action. Compass, bossbar, actionbar, bubbles and voiced hints guide progress. `/everafter home` provides a safe return, and `/everafter go` returns to an unfinished chapter without rebuilding it. Friendly NPCs are protected; bosses are combatants. Death preserves gear and quest progress.
+| | |
+| --- | --- |
+| [Demo guide](docs/demo.md) | Play the story start to finish; explain the tech accurately |
+| [Architecture](docs/architecture.md) | Components, trust boundaries, provider routing |
+| [Quest graph](docs/quest-graph.md) | Every branch, guard and consequence |
+| [Track checklist](docs/track-checklist.md) | How the project covers all three event tracks |
+| [Review judgment](docs/review-judgment.md) | Our scoring against the published criteria |
+| [Submission evidence](docs/submission-evidence.md) | Measurements, scopes, criteria mapping |
+| [Technical results report](docs/technical-results-report.md) | Source-linked audit of routing, graph and measurements |
+| [Story-v2 submission](docs/story-v2-submission.md) | Candidate batch and dated training status |
+| [Validation](docs/story-v2-validation.md) | Native playthrough evidence and automated coverage |
+| [Team feedback notes](docs/demo-feedback.md) | Informal reactions from the Mubit team |
+| [Film package](media/everafter-film/README.md) | 165 s film, 20 s teaser and slide deck tooling |
 
 ## Build and check
 
 ```sh
-mvn -f plugin/pom.xml package
-node --test director/test/*.test.mjs
-./client-mod/build.sh
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s client-mod -p 'test_*.py'
+mvn -f plugin/pom.xml package                        # Paper plugin → plugin/target/everafter.jar
+node --test director/test/*.test.mjs                 # director contract + HTTP + submission guards
+node --test media/everafter-film/*/build.test.mjs    # film composition builders
+python3 -m unittest discover -s client-mod -p 'test_*.py'
+python3 scripts/test_lifecycle.py
+python3 media/everafter-film/deck/test_deck.py
 ```
 
-The plugin artifact is `plugin/target/everafter.jar`. The launch script installs it in the dedicated local Paper server. Java parser tests check malformed director data, bounded scene fields, and input sanitation. Director tests cover its own validation and local HTTP behavior. See the [story-v2 validation](docs/story-v2-validation.md), [demo guide](docs/demo.md), [architecture](docs/architecture.md), [evaluation evidence](docs/evaluation.md), and [judging argument](docs/judging.md) for the demo sequence and trust boundaries.
+CI runs all of the above on every push: [.github/workflows/check.yml](.github/workflows/check.yml).
+
+## Tech
+
+| Layer | Stack |
+| --- | --- |
+| Server | Paper 1.21.11 · Java 21 · authoritative quest state machine |
+| World | `WorldBuilder` authored geometry · staged barriers |
+| Client | Fabric 1.21.11 · in-world mic, HUD, subtitles, WAV playback |
+| Director | Node 22 · zero-dependency HTTP service on `127.0.0.1:8765` |
+| Story text | Mubit gateway · `gpt-6-luna` · bounded JSON contract |
+| Ears | whisper.cpp `tiny.en` · mono PCM16 16 kHz, fully local |
+| Voice | OpenRouter Gemini 3.8 Flash TTS · six characters · macOS fallback |
 
 ## Scope and limits
 
-This is one adventurer's story per server run; additional players can spectate. Each run creates a fresh `everafter_<timestamp>` world and leaves prior world directories in place. Minecraft quest state does not persist across server restarts. For a fully fresh story, run:
+One adventurer's story per server run (others can spectate); quest state resets on restart — `./scripts/restart.sh` archives a run and starts fresh. Native voice requires the Fabric client and a microphone; local recognition is English via `tiny.en`. Voice input setup targets macOS. Ember Keep is Nether-themed scenery in the quest world, not a dimension portal. Claims about adapter training and world-variety are recorded with their evidence scope in [submission evidence](docs/submission-evidence.md) — we measure what we claim.
 
-```sh
-./scripts/restart.sh
-```
-
-This gracefully stops both owned services, archives the previous director state, and starts a fresh quest and narrative memory. Old Minecraft worlds and archived narrative files are retained. The browser has no reset button. `/everafter reset` points to this safe restart command.
-
-The checked-in world builder combines four authored realms, three trials and three twists into 36 categorical chapter configurations, with geometry assembled from authored modules and one adventure per server run. This documents the implementation in this repository; the creator's broader verification of effectively unlimited stories and worlds is recorded in Demo results above. A chosen chapter is fixed when construction begins; conversations and validated encounters continue within it. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. The creator's qualitative adapter result and the archived provider measurements are recorded separately in the [submission evidence](docs/submission-evidence.md). No paid training loop or load test runs automatically on startup.
-
-## Film and prepared training corpus
-
-The [film package](media/everafter-film/README.md) contains editable HyperFrames projects for a 165-second film and 20-second teaser, a six-slide PDF builder, and the Minecraft recorder. Actual captures and private request provenance stay local. The film uses a labelled continuous replay of a verified Mubit decision, historical session counters, and explicit prepared-training status; it does not claim a passing adapter or measured savings.
-
-The [story-v2 corpus](docs/story-v2-training-preparation.md) is frozen: **240 authored candidate turns across 60 sessions**, plus **60 held-out turns across 15 separate sessions**. All 300 pass offline validation. The user authorized [separate CLI submissions on 25 October](docs/story-v2-submission.md): 100 unique candidate turns returned valid story JSON; 89 matched every authored field check. At the **00:40 BST console observation on 25 October**, the current task showed 153 usable calls, 0 kept, 153 awaiting review, 19 reviews running, first training not started and no serving route. This is a dated checkpoint, not a live status indicator. The kept-example target remains 50.
+<div align="center">
+<br/>
+Built for <a href="https://luma.com/nightshift-london">Mubit Night Shift</a> · Film music: Uprising — Scott Buckley, CC BY 4.0
+</div>
