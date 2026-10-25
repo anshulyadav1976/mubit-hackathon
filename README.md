@@ -89,6 +89,8 @@ Against every judging criterion, this is the strongest honest case the project c
 | **Technical execution** | A server-authoritative state machine, 36 authored chapter configurations, evidence-gated progression, correlated voice, 129 checks green in CI — engineering a judge can verify file by file. |
 | **Demo** | Three minutes from village to reunion: speak, watch a chapter assemble itself, face two guardians your own evidence can spare, walk Elin home. Plus a produced 165-second film and 20-second teaser. |
 
+And for Mubit as a product: EVERAFTER is the reference story a new gateway needs. It proves Mubit can hold a production narrative workload in a category beyond the usual chat-and-summarize demos — live games, interactive fiction, agent-driven NPCs — where the customer is a studio shipping to players, not a hobbyist. The integration surface a paying customer actually needs is all here: an OpenAI-compatible endpoint they can point existing tooling at, a contract they can freeze and trust, adaptation that survives real player input, and a labelled fallback that keeps their product alive when the gateway can't answer. Every game studio, education platform and interactive-story team evaluating Mubit can clone this repo and see their own product in it. That's a use case with a market attached — and a demo that sells the gateway, not just the game.
+
 ## Features
 
 | | |
