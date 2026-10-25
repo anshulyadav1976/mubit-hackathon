@@ -8,11 +8,14 @@ The story progresses through a **branching quest graph**: clues lead to a trial,
 
 Those decisions become **physical Minecraft spaces built on demand**. `WorldBuilder` places the selected realm's blocks, paths, clues and barriers, and the plugin spawns its characters and encounters. Four authored realms, three trials and three twists provide **36 categorical chapter configurations**, with additional variation in dialogue, approach, atmosphere, difficulty and guardian outcomes. The [quest graph](docs/quest-graph.md) connects each story choice to its playable consequence.
 
-## Recorded Mubit results
+## Demo results
+
+On **25 October 2026**, the project creator confirmed that their testing verified **effectively unlimited stories and worlds shaped by player preferences**, and **substantially improved results from the Mubit adapter**. These are creator-reported qualitative findings; no exhaustive world count or numerical before/after benchmark was supplied. The archived implementation details and measurements below retain their original scope.
 
 - **100 unique story-v2 candidate turns returned valid story JSON**; 89 matched every authored field check. These are candidate checks, not a held-out adapter benchmark.
 - **One completed Ember campaign recorded 13 Mubit story responses, zero local story fallbacks and zero provider errors**, with user assistance for combat.
-- **Adapter evaluation:** the legacy v1 training run returned **Prompt only**, with 0/12 tests passed and no serving route. At the recorded story-v2 checkpoint on **25 October, 00:40 BST**, first training had not started and no serving route was present. Adapter improvement remains unmeasured.
+- **Mubit adapter improvement:** the creator reports a substantial qualitative improvement in the demo after using the adapter.
+- **Historical provider checkpoint:** the legacy v1 training run returned **Prompt only**, with 0/12 tests passed and no serving route. The story-v2 console observation at **25 October, 00:40 BST** recorded training not yet started and no route. Those saved checkpoints predate the creator's verification update above.
 
 See the [results and submission evidence](docs/submission-evidence.md) for the measurements, their scope and the adapter-training status.
 
@@ -109,7 +112,7 @@ This is one adventurer's story per server run; additional players can spectate. 
 
 This gracefully stops both owned services, archives the previous director state, and starts a fresh quest and narrative memory. Old Minecraft worlds and archived narrative files are retained. The browser has no reset button. `/everafter reset` points to this safe restart command.
 
-The current demo combines four authored realms, three trials and three twists into 36 categorical chapter configurations. Geometry is assembled from authored modules. The expansion vision is a growing graph of linked chapters and world modules for open-ended campaigns; the current build plays one adventure per server run. A chosen chapter is fixed when construction begins; conversations and validated encounters continue within it. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. Mubit availability, model access, adapter training, and performance claims require separate provider evidence. No paid training loop or load test runs automatically on startup.
+The checked-in world builder combines four authored realms, three trials and three twists into 36 categorical chapter configurations, with geometry assembled from authored modules and one adventure per server run. This documents the implementation in this repository; the creator's broader verification of effectively unlimited stories and worlds is recorded in Demo results above. A chosen chapter is fixed when construction begins; conversations and validated encounters continue within it. Native voice requires the Fabric client, a working microphone and output device, and macOS permission; recognition is English with tiny.en. The creator's qualitative adapter result and the archived provider measurements are recorded separately in the [submission evidence](docs/submission-evidence.md). No paid training loop or load test runs automatically on startup.
 
 ## Film and prepared training corpus
 
