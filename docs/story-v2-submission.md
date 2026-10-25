@@ -20,11 +20,6 @@ Submission finished at **00:19 BST on 25 October 2026** (23:19 UTC on 24 October
 
 The continuation run `story-v2-9f881f24-9a78-474b-8a5e-0584d89350a9` completed all 94 planned requests. Together with the first six valid outputs, this establishes 100 unique valid responses. Its predecessor's empty answer is retained as a failed attempt. The local field score concerns teacher responses on authored candidate inputs; it is not a held-out evaluation, a trained-adapter score or an acceptance count. No further paid round is scheduled or allowed by this ledger. The local aggregate is `director/runtime/training-recovery/story-v2-submission-summary.json`.
 
-## Subsequent console observation
-
-At **00:40 BST on 25 October 2026**, an authenticated read-only inspection of [Narrative director of EVERAFTER 2](https://app.mubit.ai/console/projects/ws-4f30c2c7f67f9351/workloads/ln_0958f4c72a83f14c91fb4b6d) showed **153 usable calls, 0 kept, 0 rejected, 153 awaiting review, 153 queued, 19 reviews running, and 0 over the daily review limit**. First training was **not started**; its threshold was 25 kept examples, sessions with kept examples were 0, and routes were none. The earlier unknown statuses in the completed-batch table describe the API-only submission checkpoint, not this later console observation.
-
-The console's task-wide 153 calls include traffic outside this 100-turn candidate batch. They are not 153 accepted training rows. Its only listed adapter remained the legacy Qwen3-4B v1, with a `Prompt only` training result, 0% across 12 scored cases, and no linked request path. No settings were changed and no further provider calls were made for this inspection. The cause of the unfinished reviews was not established; this snapshot does not establish a permanent outage or later training outcome. The private observation is `director/runtime/training-recovery/manual-status-latest.json`.
 
 ## What is sent
 
