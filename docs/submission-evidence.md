@@ -1,10 +1,20 @@
-# EVERAFTER: implementation, results and potential
+# EVERAFTER: graph-based storytelling in a playable Minecraft world
 
-EVERAFTER is a voice-driven Minecraft rescue RPG and a reusable experiment in conversational game direction. Players question characters, revise an uncommitted lead, face a clue-based trial and two guardians, and bring a missing sister home. The engineering contribution is a stable narrative task connected to a server-authoritative quest graph: generated language can change the experience without inventing completed game actions.
+EVERAFTER turns natural conversation into a **graph-based Minecraft adventure**. Players tell characters what interests them; the Mubit-backed director interprets their preferences into a realm, trial, atmosphere, difficulty and twist. The server then constructs the chosen chapter as physical Minecraft geometry, with characters, clues, barriers and encounters.
+
+The story graph gives those choices consequences: discover evidence, solve a trial, fight or spare the Sentinel and Warden when the prerequisites allow it, rescue Elin and escort her home. The ending records the player's actual decisions. A reusable narrative director connects generated dialogue to game rules that the server can validate.
 
 This report separates implemented behavior, observed measurements, targets and proposed extensions. It contains no official judging verdict or awarded score.
 
-## What Mubit does in this build
+## Graph-based story and on-demand world construction
+
+The [playable quest graph](quest-graph.md) is the structure behind the adventure. Its nodes represent quest stages; its edges require real discoveries, trial outcomes, guardian decisions and an escort. The selected trial branches into a riddle, gauntlet or parley, while earlier mercy determines whether the final guardian can be spared.
+
+Player preferences shape the chapter before construction. [`WorldBuilder.buildChapter`](../plugin/src/main/java/ai/everafter/WorldBuilder.java) then applies authored block geometry in server-tick batches; the [Paper plugin](../plugin/src/main/java/ai/everafter/EverafterPlugin.java) spawns NPCs and bosses and opens barriers as the player earns progress. The result is a playable space built during the run, with dialogue, story state and physical encounters connected through the same quest progression.
+
+The demo implements four realms, three trials and three twists: **36 categorical chapter configurations**, plus variation in approach, atmosphere, difficulty, generated dialogue and three legal guardian-outcome pairs. These dimensions describe different aspects of the experience; they are not a measured count of unique worlds.
+
+## Mubit: recurring decisions and adapter preparation
 
 | Part | Current implementation |
 |---|---|
@@ -33,7 +43,7 @@ The source is [director.mjs](../director/director.mjs), [prompt.mjs](../director
 
 See [submission provenance](story-v2-submission.md), [native and automated validation](story-v2-validation.md), and [evaluation history](evaluation.md). The frozen corpus has 240 candidate turns and 60 separate held-out turns; its preparation-time `submitted: 0` is historical. All synthetic, integration and provider-evaluation results retain their distinct scopes.
 
-## Before/after comparison and targets
+## Adapter evaluation and next measurements
 
 There is no matched story-v2 provider-versus-adapter benchmark yet. The older provider baseline and current candidate batch have different contracts or fixtures, so a numerical improvement between them would be invalid.
 
@@ -67,7 +77,7 @@ The [official brief](https://luma.com/nightshift-london) names three tracks and 
 
 The prospective customer is a game team that repeatedly needs consistent NPC replies, chapter routing and encounter guidance. A compact model trained on that stable contract could become a reusable intelligence layer while the game engine retains authority over rules. Reduced authoring work, lower inference costs and better player engagement are hypotheses to test, not reported outcomes.
 
-Current variety comes from four authored realms, three trials, three twists, approach, atmosphere, difficulty, generated dialogue and guardian outcomes. **36 categorical chapter configurations are implemented; infinite generated worlds are not.** An expandable chapter graph, additional world modules and longer campaigns are plausible extensions. They need implementation, persistence, reachability checks and new native validation before becoming product claims.
+The product vision is an **open-ended campaign composer**: an expanding graph of story chapters and world modules, chosen from player preferences and linked by remembered consequences. Successive chapter choices could multiply the number of possible journeys as the catalogue grows. The demo establishes the core conversation → chapter decision → physical construction → validated consequence loop with 36 categorical chapter configurations and one adventure per server run. Longer campaigns require linked-chapter composition, more world modules, persistence, reachability checks and native validation; billions of unique worlds or endless playable content have not been demonstrated.
 
 For voice routing, Mubit's [OpenAI-compatible service guide](https://docs.mubit.ai/guides/openai-compatible) documents chat completions, embeddings and model listings; other compatibility paths return 404. The current speech code uses `/audio/speech`, so changing only its hostname is not a supported migration. A genuine Mubit audio integration needs a supported audio route, suitable provider access and a recorded audio check. It would still need accurate upstream model attribution. The event's all-LLM-calls routing requirement should not be represented as proven for the current direct hosted speech path.
 

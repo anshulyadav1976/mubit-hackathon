@@ -1,6 +1,6 @@
 # EVERAFTER: the demo argument
 
-**A game director that interprets what kind of adventure a player wants, remembers the conversation and turns it into playable consequences.** Minecraft is the test environment; the reusable product is the bounded narrative director for RPG developers. Current preference memory is application context; trained-model learning needs separate provider evidence.
+**Tell the characters what kind of adventure you want. EVERAFTER turns that conversation into a branch of its story graph and builds the chosen chapter physically in Minecraft.** The graph connects clues, trials, guardian choices and a rescue to a factual ending. Minecraft is the playable demonstration; the reusable product is a narrative director for RPG developers.
 
 The [submission report](submission-evidence.md) separates observed results, project targets and potential benefits. The [quest graph](quest-graph.md) shows the implemented branches and server-owned rules. No official judge scores have been recorded in this repository.
 
@@ -27,17 +27,17 @@ The [official event brief](https://luma.com/nightshift-london) lists three track
 
 ## Suggested short presentation
 
-“Mara gives me four clues to her missing sister. I answer in my own words. That shapes the realm, its trial, and how I can confront its guardians.”
+“Mara gives me four clues to her missing sister. I answer in my own words. EVERAFTER turns my preferences into a chapter choice, builds its realm in Minecraft, and carries my decisions through a branching story graph to the reunion.”
 
 Speak one preference. Show the resulting structured decision. Correct it before crossing, then choose the intended route. Enter the chapter and solve one visible objective. Use the completed rescue only after actually earning it; no presentation shortcut should masquerade as gameplay.
 
 Once real training is verified: show the correction request and the resulting Mubit adapter version, then the matched evaluation. Quote observed numbers, including failures. Close with the product opportunity: developers retain a small, testable director for their game's recurring decisions.
 
-## Do not claim
+## Demo scope and expansion vision
 
-- Endless generated worlds: geometry is assembled from four authored realms with bounded encounter choices.
-- Instant training: preference memory changes immediately; provider training is asynchronous.
-- Improved quality, lower cost, or faster inference without the corresponding measured comparison.
-- A guaranteed prize or full score. A polished game does not replace the required Mubit evidence.
+- **Playable now:** a preference-directed rescue graph, four authored realms, three trials, physical world construction and evidence-gated guardian outcomes.
+- **Recorded Mubit results:** 100 valid story-v2 candidate responses, with 89 matching every authored field check; one completed Ember session with 13 Mubit responses and zero local story fallbacks or provider errors. These describe candidate checks and one integration session.
+- **Adapter status:** training preparation and candidate submission are recorded. A passing story-v2 adapter, verified serving and a matched quality, cost or latency improvement remain to be established. Immediate preference changes use application context.
+- **Expansion vision:** a growing graph of linked chapters and world modules for open-ended campaigns. The current demo provides 36 categorical chapter configurations and one adventure per server run.
 
 See [demo controls](demo.md), [architecture](architecture.md), and [evaluation protocol](evaluation.md).
