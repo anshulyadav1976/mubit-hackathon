@@ -109,7 +109,7 @@ The creator additionally reports qualitative verification of effectively unlimit
 | [Architecture](docs/architecture.md) | Components, trust boundaries, provider routing |
 | [Quest graph](docs/quest-graph.md) | Every branch, guard and consequence |
 | [Track checklist](docs/track-checklist.md) | How the project covers all three event tracks |
-| [Self-assessment](docs/self-assessment.md) | Our own scorecard against the criteria |
+| [Review judgment](docs/review-judgment.md) | Our scoring against the published criteria |
 | [Submission evidence](docs/submission-evidence.md) | Measurements, scopes, criteria mapping |
 | [Technical results report](docs/technical-results-report.md) | Source-linked audit of routing, graph and measurements |
 | [Story-v2 submission](docs/story-v2-submission.md) | Candidate batch and dated training status |

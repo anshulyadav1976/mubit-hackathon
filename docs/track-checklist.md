@@ -34,4 +34,4 @@ The [official brief](https://luma.com/nightshift-london) names three tracks. Thi
 
 ## Criteria coverage
 
-All three tracks inside one application: the recurring director task feeds candidate examples (Track 1), the frozen corpus plus guarded execution form the owned intelligence layer (Track 2), and corrections plus the bounded runner provide the refresh loop (Track 3). See the [self-assessment scorecard](self-assessment.md) for our honest per-criterion view.
+All three tracks inside one application: the recurring director task feeds candidate examples (Track 1), the frozen corpus plus guarded execution form the owned intelligence layer (Track 2), and corrections plus the bounded runner provide the refresh loop (Track 3). See the [review judgment](review-judgment.md) for our scoring of each criterion.
