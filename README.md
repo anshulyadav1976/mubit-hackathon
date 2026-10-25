@@ -21,6 +21,7 @@ See the [results and submission evidence](docs/submission-evidence.md) for the m
 
 ## Submission evidence and technical design
 
+- [Technical and results report: routing, story graph, recorded measurements and criteria](docs/technical-results-report.md)
 - [Implementation, measured results, event criteria and product potential](docs/submission-evidence.md)
 - [Playable quest graph: branching choices, progression guards and content bounds](docs/quest-graph.md)
 - [Mubit candidate submissions and dated training status](docs/story-v2-submission.md)
