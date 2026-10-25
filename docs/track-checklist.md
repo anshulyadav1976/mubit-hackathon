@@ -7,7 +7,7 @@ The [official brief](https://luma.com/nightshift-london) names three tracks. Thi
 > Mubit learns a repeated, stable task shape from real usage.
 
 - [x] **One recurring task contract.** Every NPC turn sends the same structured narrative contract — NPC identity, authoritative quest facts, recent conversation, player preferences — and expects bounded dialogue plus a chapter proposal. See [`director/prompt.mjs`](../director/prompt.mjs) and the [story-v2 contract](story-v2-contract.md).
-- [x] **Contextual corrections.** Players revise preferences conversationally before a chapter commits; the director re-interprets while preserving history and observed facts. [`director/story.mjs`](../director/story.mjs) and `EverafterPlugin` hold the correction flow.
+- [x] **Contextual corrections.** Players revise preferences conversationally before a chapter commits; the director re-interprets while preserving history and observed facts. See [corrections](corrections.md) for the turn-by-turn flow; [`director/story.mjs`](../director/story.mjs) and `EverafterPlugin` hold the correction flow.
 - [x] **Stable task fingerprint.** The production prompt, model (`gpt-6-luna`) and output schema are frozen; context changes are application state, not weight updates.
 - [x] **Candidate corpus collected.** 100 unique story-v2 candidate turns across 25 sessions returned valid story JSON — [submission evidence](story-v2-submission.md).
 - [ ] Kept-example review completing in the Mubit console (0 kept, awaiting review at the 00:40 BST 25 Oct checkpoint).
