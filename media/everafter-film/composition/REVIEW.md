@@ -24,6 +24,6 @@ Both include AAC audio. The main film has 19 edits and one continuous 32-second 
 
 C03's synthetic player voice passes through the actual microphone/STT path. C07 replays that same captured request at original speed; it is not another call. The validated scene decision is actual guarded data, with a 4.154-second backend request measurement. It is a provisional chapter before entry. C07 keeps source framing; C10C is the documented pre-cropped book insert, page 1 only. Reunion footage is labelled as the recorded post-reunion state. The realm montage and guardian approaches are separate recorded highlights.
 
-Historical session observations remain separate from the filmed trace. V2 corpus preparation is shown as offline work: submitted 0, kept unknown, target 50. No trained-v2, small-model savings, or arbitrary-world-generation claim is made.
+Historical session observations remain separate from the filmed trace. V2 corpus preparation is shown as offline work: submitted 100, kept unknown, target 50. No trained-v2, small-model savings, or arbitrary-world-generation claim is made.
 
 The visible music credit and both READMEs credit Scott Buckley's Uprising under CC BY 4.0, with the primary source and modifications described. No cloud publication or paid model call was part of composition/rendering.

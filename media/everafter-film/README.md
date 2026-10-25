@@ -16,7 +16,7 @@ The player prompt is synthetic speech played into the real microphone to exercis
 
 Evidence graphics distinguish **historical integration observations** (13 Mubit replies, zero local fallbacks, zero provider errors in that documented completed Ember session) from the separate filmed request and the prepared story-v2 dataset. The later Sunken filming run had four Mubit replies and two labelled local fallbacks after `503 engine_unavailable`; it is not the source of the 13/0/0 card. A passing adapter, small-model serving, quality improvement, training acceptance, cost savings and latency savings remain unverified.
 
-The frozen corpus contains 240 candidate turns across 60 sessions and 60 held-out turns across 15 separate sessions. It is prepared locally: no batch submission, Mubit-kept count unknown, target 50. See [preparation details](../../docs/story-v2-training-preparation.md).
+The frozen corpus contains 240 candidate turns across 60 sessions and 60 held-out turns across 15 separate sessions. It is prepared locally: 100 candidate turns were submitted on 25 October; the Mubit-kept count is unknown, target 50. See [preparation details](../../docs/story-v2-training-preparation.md).
 
 ## Local inputs and checks
 

@@ -88,7 +88,7 @@ For voice routing, Mubit's [OpenAI-compatible service guide](https://docs.mubit.
 
 ## Informal feedback notes
 
-The project creator reported the following conversations during the hackathon on 25 October 2026: the CTO described the idea as fun and cool; the CEO enjoyed the demonstrated game/video and trailer; feedback was positive about the choice graph, constraints and use of Mubit. These are attributed recollections supplied by the creator, not independently witnessed quotations, official endorsements, judge scores or award decisions.
+The project creator reported the following conversations during the hackathon on 25 October 2026: the CTO described the idea as fun and cool; the CEO enjoyed the demonstrated game/video and trailer; feedback was positive about the choice graph, constraints and use of Mubit. These are attributed recollections supplied by the creator, not independently witnessed quotations, official endorsements, judge scores or award decisions. See the full [demo feedback notes](demo-feedback.md).
 
 ## Reproduce and inspect
 

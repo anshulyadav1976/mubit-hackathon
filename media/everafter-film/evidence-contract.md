@@ -58,7 +58,7 @@ Before artifact validation: **Offline corpus: 240 turns / 60 sessions planned**;
 
 After root verifies those exact artifacts: **Offline corpus: 240 turns / 60 sessions prepared**; **Holdout: 60 cases / 15 sessions separate**.
 
-Both versions: **Submitted: 0 · kept: unknown · target: 50** while that is the actual current state. Do not animate a progress bar from 0 to 50: it would imply progress that has not happened.
+Both versions: **Submitted: 100 · kept: unknown · target: 50** while that is the actual current state. Do not animate a progress bar from 0 to 50: it would imply progress that has not happened.
 
 Footer: **V2 not trained • no demonstrated small-model savings**.
 
