@@ -4,9 +4,11 @@ Informal reactions collected by the project creator during the hackathon on **25
 
 ## What we heard
 
-- The **CTO** described the concept as fun and cool.
-- The **CEO** liked the idea. After being shown the demo video and the trailer, he enjoyed both.
-- Technical feedback highlighted the **choice graph** and its **constraints** — preferences interpreted through conversation, then validated and built by the server rather than generated freely.
+- The **CTO** described the concept as fun and cool. He particularly liked that Mubit is being applied to a **new kind of use case** — driving a live, playable game world from a recurring narrative-decision task rather than a conventional text workload — and engaged on the technical detail of how the director contract, preference interpretation and server-side validation fit together.
+- The **CEO** liked the idea overall. After being shown the demo video and the teaser trailer, he enjoyed both.
+- He specifically liked the **constraint-based method**: the model proposes bounded decisions while the game server alone validates and executes them.
+- He liked the **technical architecture** — the split between the narrative director, the authoritative Paper plugin and the local voice pipeline.
+- He liked that a **single application covers all three event tracks** — recurring tasks, owning the intelligence layer and fast refresh — and that the result is a real-world use case for game teams, not a demo-only artifact.
 - Feedback on the use of **Mubit** for the recurring story-decision task was positive.
 
 ## Context
