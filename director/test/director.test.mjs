@@ -89,6 +89,23 @@ test('validated Mubit interpretation is authoritative over keyword fallback pref
   assert.deepEqual(result.preferences, { combat: true, mystery: true, protectVillagers: true });
 });
 
+test('requested and gateway-reported models stay distinct, bounded and unknown when absent', async () => {
+  for (const reported of ['provider/model-v2', undefined, null, { id: 'not-a-string' }, 'bad\nmodel', 'model\n', 'model\r', 'x'.repeat(201)]) {
+    const director = local({ apiKey: 'key', model: 'requested-model', fetchImpl: async () => new Response(JSON.stringify({ model: reported, choices: [{ message: { content: JSON.stringify(decision()) } }] }), { headers: { 'x-middleware-request-id': 'mreq_model_test' } }) });
+    const result = await director.direct(input());
+    const trace = director.state().recentRequests[0];
+    const expected = reported === 'provider/model-v2' ? reported : null;
+    assert.equal(result.model, 'requested-model'); assert.equal(result.returnedModel, expected);
+    assert.equal(trace.model, 'requested-model'); assert.equal(trace.returnedModel, expected);
+    assert.equal(trace.attempts[0].returnedModel, expected); assert.equal(trace.providerRequestId, 'mreq_model_test');
+  }
+  const director = local({ apiKey: 'key', fetchImpl: async () => new Response(JSON.stringify({ model: 'provider/model-v2', choices: [{ message: { content: '{}' } }] })) });
+  const result = await director.direct(input());
+  assert.equal(result.source, 'fallback'); assert.equal(result.returnedModel, null);
+  assert.equal(director.state().recentRequests[0].attempts[0].returnedModel, 'provider/model-v2');
+  assert.equal((await local().direct(input())).returnedModel, null);
+});
+
 test('late responses honor a game phase transition instead of speaking stale adventure hints', async () => {
   let finish;
   const director = local({ apiKey: 'key', fetchImpl: () => new Promise(resolve => { finish = resolve; }) });

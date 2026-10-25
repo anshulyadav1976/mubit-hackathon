@@ -28,7 +28,17 @@ test('selected turns retain exact telemetry but never guess transcripts, raw dec
   const out = buildFilmEvidence({ ...fixture(), requestIds: ['request-1'] }); const turn = out.turns[0];
   assert.equal(turn.requestId, 'request-1'); assert.equal(turn.providerRequestId, 'mreq_synthetic'); assert.equal(turn.tokens.total_tokens, 30); assert.equal(turn.latencyMs, 1234);
   assert.equal(turn.transcript, null); assert.equal(turn.reply, null); assert.equal(turn.rawDecision, null); assert.equal(turn.gameOutcome, null);
+  assert.equal(turn.returnedModel, null); assert.equal(turn.attempts[0].returnedModel, null);
   assert.equal(turn.guardedDecision.route, 'mystery'); assert.equal(turn.localValidation.accepted, null);
+});
+
+test('film export preserves reported model separately without inferring adapter serving', () => {
+  const data = fixture();
+  data.state.recentRequests[0].returnedModel = 'reported-provider-model';
+  data.state.recentRequests[0].attempts[0].returnedModel = 'reported-provider-model';
+  const turn = buildFilmEvidence({ ...data, requestIds: ['request-1'] }).turns[0];
+  assert.equal(turn.providerModel, 'synthetic-provider-model'); assert.equal(turn.returnedModel, 'reported-provider-model');
+  assert.equal(turn.attempts[0].returnedModel, 'reported-provider-model'); assert.equal(turn.servingModel, null);
 });
 
 test('only exact request-correlated selected text is sanitized; ambient and extra fields stay excluded', () => {

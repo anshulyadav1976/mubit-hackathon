@@ -187,7 +187,7 @@ export class Director {
       const prior = { ...profile.preferences };
       profile.preferences = preferenceUpdate(input.message, profile.preferences);
       profile.observations = [...(profile.observations ?? []), { phase: input.phase, worldFacts: input.worldFacts, events: input.events, at: new Date().toISOString() }].slice(-20);
-      let source = 'fallback'; let resultModel = this.model; let decision; const attempts = []; let providerRequestId = null; let errorCode = null; let gatewayErrorCode = null; let usage = {};
+      let source = 'fallback'; let resultModel = this.model; let returnedModel = null; let decision; const attempts = []; let providerRequestId = null; let errorCode = null; let gatewayErrorCode = null; let usage = {};
       let cause = !this.apiKey ? 'Mubit key not configured' : this.providerCalls >= this.maxCalls ? 'session request budget reached' : null;
       const messages = [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: JSON.stringify({ sessionId: profile.sessionId, playerId: input.playerId }) }, { role: 'user', content: JSON.stringify({ ...input, player: { id: input.playerId, name: input.playerName }, game: profile.game, memory: { preferences: prior, provisionalFallbackPreferences: profile.preferences, preferenceHistory: profile.preferenceHistory.slice(-8), observations: profile.observations.slice(-3), conversation: profile.conversation.slice(-12) } }) }];
       if (!cause) {
@@ -209,13 +209,14 @@ export class Director {
           if (rawText.length > 64000) throw Object.assign(new Error('Oversized gateway response'), { code: 'oversized_response' });
           const raw = JSON.parse(rawText);
           usage = raw.usage ?? {};
+          returnedModel = typeof raw.model === 'string' && raw.model === raw.model.trim() && /^[a-zA-Z0-9][a-zA-Z0-9._:/@+-]{0,199}$/.test(raw.model) ? raw.model : null;
           decision = validateDecision(JSON.parse(raw.choices?.[0]?.message?.content));
           source = 'mubit';
-          attempts.push({ provider: 'mubit', providerRequestId, tokens: reportedTokens(usage), errorCode: null });
+          attempts.push({ provider: 'mubit', providerRequestId, returnedModel, tokens: reportedTokens(usage), errorCode: null });
         } catch (error) {
           errorCode = error.name === 'TimeoutError' || error.name === 'AbortError' ? 'timeout' : error.code?.startsWith('http_') ? error.code : 'invalid_or_unavailable_response';
           cause = gatewayErrorCode ? `${errorCode}:${gatewayErrorCode}` : errorCode; this.data.metrics.errors++;
-          attempts.push({ provider: 'mubit', providerRequestId, tokens: reportedTokens(usage), errorCode, gatewayErrorCode });
+          attempts.push({ provider: 'mubit', providerRequestId, returnedModel, tokens: reportedTokens(usage), errorCode, gatewayErrorCode });
         }
       }
       // Story text uses Mubit exclusively. Failure stays local and is labelled below.
@@ -238,7 +239,7 @@ export class Director {
       if (JSON.stringify(prior) !== JSON.stringify(finalPreferences)) profile.preferenceHistory = [...profile.preferenceHistory, { at: new Date().toISOString(), previous: prior, current: { ...finalPreferences }, evidence: input.message }].slice(-20);
       profile.preferences = finalPreferences;
       const latencyMs = Math.round(performance.now() - start);
-      const result = { ...decision, source, latencyMs, requestId, model: resultModel, sessionId: profile.sessionId };
+      const result = { ...decision, source, latencyMs, requestId, model: resultModel, returnedModel: source === 'mubit' ? returnedModel : null, sessionId: profile.sessionId };
       profile.conversation = [...profile.conversation, { role: 'user', npc: input.npc, text: input.message, requestId, at: new Date().toISOString() }, { role: 'assistant', npc: input.npc, text: result.dialogue, requestId, at: new Date().toISOString(), source }].slice(-40);
       profile.lastDecision = result;
       const metrics = this.data.metrics; metrics.calls++; const countKey = source === 'mubit' ? 'mubitCalls' : source === 'openrouter' ? 'openrouterCalls' : 'fallbackCalls'; metrics[countKey] = (metrics[countKey] ?? 0) + 1; metrics.lastLatencyMs = latencyMs;
@@ -249,7 +250,7 @@ export class Director {
       for (const [key, providerKey] of [['promptTokens', 'prompt_tokens'], ['completionTokens', 'completion_tokens'], ['totalTokens', 'total_tokens']]) if (tokens[providerKey] !== null) metrics[key] += tokens[providerKey];
       const tokenUsageComplete = attempts.length > 0 && attempts.every(attempt => tokenKeys.every(key => attempt.tokens[key] !== null));
       metrics.unreportedUsageAttempts = (metrics.unreportedUsageAttempts ?? 0) + attempts.filter(attempt => tokenKeys.some(key => attempt.tokens[key] === null)).length;
-      this.data.recentRequests = [...this.data.recentRequests, { requestId, providerRequestId, attempts, model: resultModel, sessionId: profile.sessionId, source, latencyMs, tokens, tokenUsageComplete, errorCode, gatewayErrorCode, at: new Date().toISOString() }].slice(-40);
+      this.data.recentRequests = [...this.data.recentRequests, { requestId, providerRequestId, attempts, model: resultModel, returnedModel: result.returnedModel, sessionId: profile.sessionId, source, latencyMs, tokens, tokenUsageComplete, errorCode, gatewayErrorCode, at: new Date().toISOString() }].slice(-40);
       await this.save(); return result;
     } finally { this.busy.delete(input.playerId); }
   }
