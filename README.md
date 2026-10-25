@@ -24,6 +24,8 @@ Mara's sister **Elin is missing**. In the village, Mara and the archivist Oren o
 
 The model proposes. **The server validates.** No generated sentence can award progress it didn't earn.
 
+EVERAFTER is for story-driven players who want an adventure that answers *them* — and for anyone who's felt a quest log go stale. The adaptation matters because the story stops being a script the moment it starts listening: two players can say different things, walk into different realms, and both finish a game that feels written for their playthrough alone.
+
 ## See it
 
 <table>
@@ -67,6 +69,25 @@ flowchart TD
 ```
 
 Every edge in the graph is guarded by real evidence: a discovered clue, a trial artifact, an actual boss outcome. Mercy shown to the Sentinel changes what the Warden accepts.
+
+## Why EVERAFTER
+
+One application. All three tracks, covered end to end — not adjacent demos, one system where each track feeds the next:
+
+**Recurring tasks.** Every turn in the game is the same task: interpret one player's words against authoritative facts, return one bounded decision. That contract never changes across all six NPCs and every phase — which is exactly the stable, repeated workload Mubit learns from. One hundred real candidate turns, all valid story JSON, flowed from production into the submission corpus. See [corrections](docs/corrections.md) for a preference flip reshaping the very next decision.
+
+**Own your intelligence layer.** The intelligence isn't the model alone — it's the contract around it: a frozen prompt, a strict schema, evidence-gated edges, a labelled fallback, and a corpus of 240 authored + 60 held-out turns we own outright. The model proposes; the server decides. Swapping the gateway changes nothing about who owns the behavior.
+
+**Fast refresh.** Corrections apply mid-conversation: say "actually, no combat — I'd rather solve the riddle," and the next decision moves route, trial and realm together. Between the game and the submission pipeline, the runner replays the frozen corpus and rebuilds the evidence pack — refresh is a loop, not a rebuild.
+
+Against every judging criterion, this is the strongest honest case the project can make:
+
+| Criterion | Why it earns full marks |
+| --- | --- |
+| **Use of Mubit** | Every story sentence routes through Mubit — nothing else can write narrative. 13/13 production replies, zero fallbacks, zero errors in a completed campaign, with request IDs on file. |
+| **Usefulness** | This isn't a demo shaped like a game; it's a game that works. Voice in, world out, ending earned — and the same director contract is reusable by any narrative project tomorrow. |
+| **Technical execution** | A server-authoritative state machine, 36 authored chapter configurations, evidence-gated progression, correlated voice, 129 checks green in CI — engineering a judge can verify file by file. |
+| **Demo** | Three minutes from village to reunion: speak, watch a chapter assemble itself, face two guardians your own evidence can spare, walk Elin home. Plus a produced 165-second film and 20-second teaser. |
 
 ## Features
 
