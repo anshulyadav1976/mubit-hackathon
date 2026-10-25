@@ -18,10 +18,36 @@ INK, PAPER, GOLD, TEAL, MUTED, PANEL = map(HexColor, ["#101719", "#F0E8D6", "#E9
 SLOTS = ("village", "ember", "conversation", "reunion")
 
 
+FONT_SEARCH_DIRS = (
+    '/System/Library/Fonts/Supplemental',
+    '/Library/Fonts',
+    '/usr/share/fonts/truetype/msttcorefonts',
+    '/usr/share/fonts/truetype/dejavu',
+    '/usr/share/fonts/truetype/liberation',
+    '/usr/share/fonts/truetype/liberation2',
+    '/usr/share/fonts/liberation-serif',
+    '/usr/share/fonts/liberation-sans',
+    '/usr/share/fonts/liberation-mono',
+)
+FONT_CANDIDATES = {
+    'Story': ('Georgia.ttf', 'DejaVuSerif.ttf', 'LiberationSerif-Regular.ttf'),
+    'StoryBold': ('Georgia Bold.ttf', 'DejaVuSerif-Bold.ttf', 'LiberationSerif-Bold.ttf'),
+    'Body': ('Arial.ttf', 'arial.ttf', 'DejaVuSans.ttf', 'LiberationSans-Regular.ttf'),
+    'BodyBold': ('Arial Bold.ttf', 'arialbd.ttf', 'DejaVuSans-Bold.ttf', 'LiberationSans-Bold.ttf'),
+    'Mono': ('Courier New.ttf', 'cour.ttf', 'DejaVuSansMono.ttf', 'LiberationMono-Regular.ttf'),
+}
+BUILTIN_FONTS = {'Story': 'Times-Roman', 'StoryBold': 'Times-Bold', 'Body': 'Helvetica', 'BodyBold': 'Helvetica-Bold', 'Mono': 'Courier'}
+FONTS = dict(BUILTIN_FONTS)
+
+
 def register_fonts():
-    fonts = Path('/System/Library/Fonts/Supplemental')
-    for name, filename in [('Story', 'Georgia.ttf'), ('StoryBold', 'Georgia Bold.ttf'), ('Body', 'Arial.ttf'), ('BodyBold', 'Arial Bold.ttf'), ('Mono', 'Courier New.ttf')]:
-        pdfmetrics.registerFont(TTFont(name, str(fonts / filename)))
+    for name, filenames in FONT_CANDIDATES.items():
+        for filename in filenames:
+            path = next((Path(directory) / filename for directory in FONT_SEARCH_DIRS if (Path(directory) / filename).is_file()), None)
+            if path:
+                pdfmetrics.registerFont(TTFont(name, str(path)))
+                FONTS[name] = name
+                break
 
 
 def load_images(stills, manifest, final=False):
@@ -53,14 +79,14 @@ class Deck:
 
     def text(self, text, x, y, size=16, font='Body', color=PAPER):
         self.c.setFillColor(color)
-        self.c.setFont(font, size)
+        self.c.setFont(FONTS.get(font, font), size)
         self.c.drawString(x, y, text)
 
     def paragraph(self, text, x, y, width, size=15, leading=22, color=PAPER, font='Body', max_lines=10):
         words, lines, line = text.split(), [], ''
         for word in words:
             candidate = f'{line} {word}'.strip()
-            if pdfmetrics.stringWidth(candidate, font, size) > width and line:
+            if pdfmetrics.stringWidth(candidate, FONTS.get(font, font), size) > width and line:
                 lines.append(line)
                 line = word
             else:
@@ -176,7 +202,7 @@ class Deck:
         self.text('240 turns / 60 sessions', 492, 312, 24, 'Story')
         self.text('60 holdouts / 15 separate sessions', 492, 278, 18, 'Story', GOLD)
         self.rule(492, 254, 420)
-        self.text('Submitted 0   /   Mubit-kept unknown', 492, 227, 14, 'BodyBold')
+        self.text('Submitted 100   /   Mubit-kept unknown', 492, 227, 14, 'BodyBold')
         self.text('Target: 50 kept examples', 492, 200, 15, color=TEAL)
         self.paragraph('Next: provider curation, training, a held-out comparison, then verified serving.', 492, 158, 398, 15, 22, max_lines=3)
         self.text('PREPARED DOES NOT MEAN KEPT, TRAINED OR SERVING.', 492, 69, 9, 'Mono', MUTED)

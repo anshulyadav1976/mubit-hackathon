@@ -26,6 +26,7 @@ See the [results and submission evidence](docs/submission-evidence.md) for the m
 - [Playable quest graph: branching choices, progression guards and content bounds](docs/quest-graph.md)
 - [Mubit candidate submissions and dated training status](docs/story-v2-submission.md)
 - [Native gameplay, voice and automated validation](docs/story-v2-validation.md)
+- [Informal feedback from the Mubit team](docs/demo-feedback.md)
 
 ## Run locally
 

@@ -1,0 +1,45 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Paper plugin tests
+        run: mvn -B -f plugin/pom.xml test
+
+  director:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Director tests
+        run: node --test director/test/*.test.mjs
+      - name: Film composition tests
+        run: node --test media/everafter-film/teaser/build.test.mjs media/everafter-film/composition/build.test.mjs
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3'
+      - name: Client installer and lifecycle tests
+        run: |
+          python -m unittest discover -s client-mod -p 'test_*.py'
+          python scripts/test_lifecycle.py
+      - name: Deck builder test
+        run: |
+          pip install reportlab pillow pypdf
+          python media/everafter-film/deck/test_deck.py

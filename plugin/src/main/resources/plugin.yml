@@ -11,4 +11,4 @@ commands:
     usage: /everafter [start|go|home|status|help|reset]
   talk:
     description: Speak to the selected character. Right-click a character to select them.
-    usage: /talk [Mara|Oren|Elin] <message>
+    usage: /talk [Mara|Oren|Ivo|Elin|Sentinel|Warden] <message>

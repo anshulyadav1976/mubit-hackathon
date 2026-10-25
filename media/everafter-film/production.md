@@ -64,7 +64,7 @@ Default truthful version until later evidence changes it:
 
 Headline: **V2 TRAINING IS NEXT**
 
-Rows: **Offline corpus: 240 turns / 60 sessions planned** / **Holdout: 60 cases / 15 sessions planned** / **Submitted: 0 · kept: unknown · target: 50**.
+Rows: **Offline corpus: 240 turns / 60 sessions planned** / **Holdout: 60 cases / 15 sessions planned** / **Submitted: 100 · kept: unknown · target: 50**.
 
 Footer: **No demonstrated small-model savings**.
 
