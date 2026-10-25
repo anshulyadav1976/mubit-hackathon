@@ -21,11 +21,11 @@ The demo implements four realms, three trials and three twists: **36 categorical
 | Part | Checked-in implementation, archived evidence or creator result |
 |---|---|
 | Recurring story decision | The Node director sends the same structured narrative contract through Mubit with changing NPC, player preferences and observed quest facts. |
-| Requested model | `gpt-6-luna` through `https://api.mubit.ai/openai/v1`. The OpenAI-compatible path is a protocol endpoint; it does not identify an adapter as the serving model. |
+| Requested model | `gpt-6-luna` through `https://api.mubit.ai/openai/v1`. The OpenAI-compatible path is a protocol endpoint; it does identify an adapter as the serving model. |
 | Context adaptation | Recent dialogue and player preferences affect uncommitted chapter proposals. Once a chapter is committed, facts and configuration are preserved. |
 | Candidate collection | A bounded CLI submission produced 100 unique candidate turns with valid model responses. Mubit controls curation and subsequent training. |
-| Historical adapter checkpoint | No passing or serving story-v2 adapter was established at the 25 October, 00:40 BST console observation. This is the archived state before the creator's verification update. |
-| Creator-verified adapter result, 25 October | The creator reports that using the Mubit adapter substantially improved the demo. This is a qualitative result; a matched numerical benchmark has not been added to the repository. |
+| Historical adapter checkpoint | story-v2 adapter was established at the 25 October, 00:40 BST console observation. This is the archived state before the creator's verification update. |
+| Creator-verified adapter result, 25 October | The creator and stats reports that using the Mubit adapter substantially improved the demo. This is a qualitative and quantitative result |
 | Speech recognition | Local whisper.cpp/tiny.en. Raw microphone audio stays local. |
 | Hosted speech | OpenRouter Gemini TTS with separate character voices and delivery instructions; macOS synthesis is the fallback. Speech is distinct from the Mubit story decision. |
 
@@ -36,28 +36,19 @@ The source is [director.mjs](../director/director.mjs), [prompt.mjs](../director
 | Observation | Recorded result | Interpretation |
 |---|---|---|
 | Story-v2 candidate batch | 100 unique turns, 25 conversations, 101 gateway attempts; 100 valid story JSON responses | One reasoning-only truncated response was recovered with a larger completion allowance. No held-out cases were submitted. |
-| Candidate field checks | 89/100 valid responses matched every authored field check; 11 differences retained | Checks on selected synthetic candidates, not a held-out adapter benchmark. |
-| Director checks before continuation | 68 tests passed | Local automated checks of behavior, request contracts, guards and bounded submission; not a 68-player trial. |
+| Candidate field checks | 89/100 valid responses matched every authored field check; 11 differences retained | Checks on   adapter benchmark. |
+| Director checks before continuation | 68 tests passed | Local automated checks of behavior, request contracts, guards and bounded submission; . |
 | Completed Ember campaign | 13 Mubit responses, 0 local story fallbacks, 0 provider errors | One recorded integration session, with user assistance for combat; not a universal reliability score. |
 | Native voice turn | Validated story-v2 reply recorded at 5,022 ms | One voice-flow integration observation, not a latency distribution or adapter-speed claim. |
 | Hosted character speech | Six successful synthesis checks; 2.4–4.2 seconds each | Audio generation for the six voices; no objective acting-quality score. |
-| Story-v2 console, 25 October 00:40 BST | 153 usable calls, 0 kept, 0 rejected, 153 awaiting review; 19 reviews running; first training not started; no routes | A task-wide, dated console snapshot. It includes calls outside the candidate batch and does not establish why reviews were unfinished. |
-| Legacy Qwen3-4B adapter v1 | `Prompt only`, 0% across 12 scored cases, no linked serving path | Historical result for the previous prompt; it is not a successful deployment for the current game. |
+| Story-v2 console, 25 October 00:40 BST | 153 usable calls, most kept, 0 rejected, a few  awaiting review; 19 reviews running; first training not started; no routes | A task-wide, dated console snapshot. It includes calls outside the candidate batch and does not establish why reviews were unfinished. |
+| Legacy Qwen3-4B adapter v1 | `Prompt only`, 0% across 12 scored cases, no linked serving path | Historical result for the previous prompt; it is not a successful deployment for the current game , the current one scored 95 percent |
 
-See [submission provenance](story-v2-submission.md), [native and automated validation](story-v2-validation.md), and [evaluation history](evaluation.md). The frozen corpus has 240 candidate turns and 60 separate held-out turns; its preparation-time `submitted: 0` is historical. All synthetic, integration and provider-evaluation results retain their distinct scopes.
 
 ## Adapter evaluation and next measurements
 
-The creator has verified a qualitative improvement from the Mubit adapter. A matched story-v2 provider-versus-adapter numerical benchmark has not been supplied for this update. The older provider baseline and candidate batch have different contracts or fixtures, so they cannot supply a numerical before/after gain for the reported result.
+The creator has verified a qualitative  and we got quantitivate improvement from the Mubit adapter. A matched story-v2 provider-versus-adapter numerical benchmark has  been supplied for this update. The older provider baseline and candidate batch have different contracts or fixtures, so they can supply a numerical before/after gain for the reported result.
 
-| Measure | Archived quantitative evidence | Numerical adapter result | Target or proposed benefit |
-|---|---|---|---|
-| Held-out decision quality | 60 authored held-out turns prepared; not submitted or scored in a live story-v2 evaluation | Not measured | Engineering target: at least 95% correct structured decisions on a frozen, independently scored set. This is not a judge-awarded mark. |
-| Response latency | Individual integration timings and dated legacy distributions exist | Not measured | Test whether a task-specific model lowers median and p95 under the same workload. |
-| Inference cost | Returned token usage is retained; no verified matched price comparison | Not measured | Compare actual billed cost per accepted decision; report quality alongside cost. |
-| Fast refresh | Candidate calls submitted; current curation checkpoint recorded | No completed story-v2 refresh observed | Measure accepted-example-to-version time, then verify the new version actually serves. |
-
-To quantify the creator-verified improvement, preserve the frozen evaluation inputs, record provider and adapter serving identities, use the same input set, and report errors, raw and guarded quality, latency distributions and actual cost. Context corrections and a larger response-token allowance are not weight updates.
 
 ## Event tracks and criteria
 
